@@ -22,7 +22,6 @@
             <Style x:Key="BlueButton" TargetType="Button" BasedOn="{StaticResource CustomMaterialButton}">
                 <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}" />
                 <Setter Property="MaxWidth" Value="200" />
-
                 <Setter Property="Foreground" Value="White" />
             </Style>
 
