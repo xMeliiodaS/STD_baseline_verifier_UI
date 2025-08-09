@@ -8,4 +8,11 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="STD_baseline_verifier\Models\" />
+    <Folder Include="STD_baseline_verifier\Services\" />
+    <Folder Include="STD_baseline_verifier\ViewModels\" />
+    <Folder Include="STD_baseline_verifier\Views\" />
+  </ItemGroup>
+
 </Project>
