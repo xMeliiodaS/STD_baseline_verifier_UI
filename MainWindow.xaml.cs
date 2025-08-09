@@ -57,7 +57,7 @@ namespace AT_baseline_verifier
 
                     if (!string.IsNullOrEmpty(errors))
                     {
-                        StatusText.Text = $"Error: {errors}";
+                        StatusText.Text = $"Error";
                     }
                     else
                     {
@@ -67,7 +67,7 @@ namespace AT_baseline_verifier
             }
             catch (Exception ex)
             {
-                StatusText.Text = $"Execution failed: {ex.Message}";
+                StatusText.Text = $"Execution failed";
             }
         }
 
@@ -138,23 +138,22 @@ namespace AT_baseline_verifier
             e.Handled = true;
         }
 
-        private void Window_Drop(object sender, DragEventArgs e)
+    private void Window_Drop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files.Length > 0 && (files[0].EndsWith(".xls") || files[0].EndsWith(".xlsx")))
             {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 0 && (files[0].EndsWith(".xls") || files[0].EndsWith(".xlsx")))
-                {
-                    selectedFilePath = files[0];
-                    SelectedFileLabel.Text = selectedFilePath;
-                    StatusText.Text = "File selected via drag & drop.";
-                }
-                else
-                {
-                    StatusText.Text = "Invalid file format. Please drop an Excel file.";
-                }
+                selectedFilePath = files[0];
+                SelectedFileLabel.Text = selectedFilePath;
+                StatusText.Text = "File selected via drag & drop.";
+            }
+            else
+            {
+                StatusText.Text = "Invalid file format. Please drop an Excel file.";
             }
         }
-
     }
+}
 }

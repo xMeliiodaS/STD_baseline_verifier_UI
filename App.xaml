@@ -29,7 +29,7 @@
             <Style x:Key="GreenButton" TargetType="Button" BasedOn="{StaticResource CustomMaterialButton}">
                 <Setter Property="Background" Value="{DynamicResource SecondaryHueMidBrush}" />
                 <Setter Property="Foreground" Value="White" />
-                <Setter Property="MaxWidth" Value="400" />
+                <Setter Property="MaxWidth" Value="350" />
                 <Setter Property="Background" Value="#4CAF50" />
                 <!-- Material Design Green 500 -->
             </Style>
