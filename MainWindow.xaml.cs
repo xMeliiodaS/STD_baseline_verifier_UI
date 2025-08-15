@@ -16,6 +16,32 @@ namespace AT_baseline_verifier
             InitializeComponent();
         }
 
+        private string EnsureUserConfigExists()
+        {
+            string appDataFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "AT_baseline_verifier"
+            );
+            Directory.CreateDirectory(appDataFolder);
+
+            string userConfigPath = Path.Combine(appDataFolder, "config.json");
+            string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "config.json");
+
+            if (!File.Exists(userConfigPath))
+            {
+                if (File.Exists(defaultConfigPath))
+                {
+                    File.Copy(defaultConfigPath, userConfigPath);
+                }
+                else
+                {
+                    throw new FileNotFoundException($"Default config.json not found at {defaultConfigPath}");
+                }
+            }
+
+            return userConfigPath;
+        }
+
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -28,7 +54,21 @@ namespace AT_baseline_verifier
             {
                 selectedFilePath = openFileDialog.FileName;
                 SelectedFileLabel.Text = selectedFilePath;
-                StatusText.Text = "File selected successfully.";
+
+                try
+                {
+                    string userConfigPath = EnsureUserConfigExists();
+
+                    var json = JObject.Parse(File.ReadAllText(userConfigPath));
+                    json["excel_path"] = selectedFilePath;
+                    File.WriteAllText(userConfigPath, json.ToString());
+
+                    StatusText.Text = $"Excel path updated to: {json["excel_path"]}";
+                }
+                catch (Exception ex)
+                {
+                    StatusText.Text = $"Error updating config: {ex.Message}";
+                }
             }
         }
 
@@ -42,35 +82,12 @@ namespace AT_baseline_verifier
 
             try
             {
-                // --- 1. Prepare per-user AppData folder for JSON ---
-                string appDataFolder = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "AT_baseline_verifier"
-                );
-                Directory.CreateDirectory(appDataFolder);
+                string userConfigPath = EnsureUserConfigExists();
 
-                string userConfigPath = Path.Combine(appDataFolder, "config.json");
-                string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "config.json");
-
-                // --- 2. Copy default JSON if missing ---
-                if (!File.Exists(userConfigPath))
-                {
-                    if (File.Exists(defaultConfigPath))
-                        File.Copy(defaultConfigPath, userConfigPath);
-                    else
-                    {
-                        StatusText.Text = $"Default config.json not found at {defaultConfigPath}";
-                        return;
-                    }
-                }
-
-                // --- 3. Update std_name ---
-                var json = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(userConfigPath));
+                var json = JObject.Parse(File.ReadAllText(userConfigPath));
                 json["std_name"] = STDNameInput.Text;
                 File.WriteAllText(userConfigPath, json.ToString());
-                StatusText.Text = $"STD name updated to: {json["std_name"]}";
 
-                // --- 4. Run Python EXE ---
                 string exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "open_azure_vsts_test.exe");
                 if (!File.Exists(exePath))
                 {
@@ -94,7 +111,9 @@ namespace AT_baseline_verifier
                     string errors = process.StandardError.ReadToEnd();
                     process.WaitForExit();
 
-                    StatusText.Text = !string.IsNullOrEmpty(errors) ? $"Error: {errors}" : $"Script executed successfully.\n{output}";
+                    StatusText.Text = !string.IsNullOrEmpty(errors)
+                        ? $"Error: {errors}"
+                        : $"Script executed successfully.\n{output}";
                 }
             }
             catch (Exception ex)
