@@ -5,6 +5,9 @@
     {
       "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\AppData\\Roaming\\AT_baseline_verifier\\config.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,8 +17,20 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "config.json",
+              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\AppData\\Roaming\\AT_baseline_verifier\\config.json",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Roaming\\AT_baseline_verifier\\config.json",
+              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\AppData\\Roaming\\AT_baseline_verifier\\config.json",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Roaming\\AT_baseline_verifier\\config.json",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-08-15T15:23:00.376Z"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -24,7 +39,7 @@
               "RelativeDocumentMoniker": "MainWindow.xaml.cs",
               "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml.cs",
               "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAswA0AAAAbAAAAAAAAAA==",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAowF8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-15T14:57:30.903Z",
               "EditorCaption": ""

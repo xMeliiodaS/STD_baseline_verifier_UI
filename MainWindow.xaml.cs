@@ -88,16 +88,21 @@ namespace AT_baseline_verifier
                 json["std_name"] = STDNameInput.Text;
                 File.WriteAllText(userConfigPath, json.ToString());
 
-                string exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "open_azure_vsts_test.exe");
-                if (!File.Exists(exePath))
+                // Use AppContext.BaseDirectory for single-file publishes
+                string exeFolder = AppContext.BaseDirectory;
+
+                // EXE path
+                string pythonExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "open_azure_vsts_test.exe");
+
+                if (!File.Exists(pythonExePath))
                 {
-                    StatusText.Text = $"Python EXE not found at {exePath}";
+                    StatusText.Text = $"Python EXE not found at {pythonExePath}";
                     return;
                 }
 
-                ProcessStartInfo psi = new ProcessStartInfo
+                var psi = new ProcessStartInfo
                 {
-                    FileName = exePath,
+                    FileName = pythonExePath,
                     Arguments = $"\"{selectedFilePath}\" \"{STDNameInput.Text}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -105,7 +110,7 @@ namespace AT_baseline_verifier
                     CreateNoWindow = true
                 };
 
-                using (Process process = Process.Start(psi))
+                using (var process = Process.Start(psi))
                 {
                     string output = process.StandardOutput.ReadToEnd();
                     string errors = process.StandardError.ReadToEnd();

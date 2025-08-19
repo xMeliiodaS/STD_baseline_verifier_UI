@@ -10,13 +10,19 @@
 
   <ItemGroup>
     <None Remove="Scripts\config.json" />
+    <None Remove="Scripts\open_azure_vsts_test.exe" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Scripts\config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Scripts\config.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</None>
+		<None Update="Scripts\open_azure_vsts_test.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</None>
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
