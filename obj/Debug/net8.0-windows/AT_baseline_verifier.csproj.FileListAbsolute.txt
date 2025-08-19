@@ -29,5 +29,3 @@ C:\Users\סלימאן\source\repos\AT_baseline_verifier\bin\Debug\net8.0-windows
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\bin\Debug\net8.0-windows\Microsoft.Xaml.Behaviors.dll
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\AT_basel.5E410112.Up2Date
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
-C:\Users\סלימאן\source\repos\AT_baseline_verifier\bin\Debug\net8.0-windows\Scripts\config.json
-C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\AT_baseline_verifier_Content.g.cs

@@ -25,7 +25,7 @@ namespace AT_baseline_verifier
             Directory.CreateDirectory(appDataFolder);
 
             string userConfigPath = Path.Combine(appDataFolder, "config.json");
-            string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "config.json");
+            string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
 
             if (!File.Exists(userConfigPath))
             {
@@ -92,7 +92,7 @@ namespace AT_baseline_verifier
                 string exeFolder = AppContext.BaseDirectory;
 
                 // EXE path
-                string pythonExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "open_azure_vsts_test.exe");
+                string pythonExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_open_azure_vsts.exe");
 
                 if (!File.Exists(pythonExePath))
                 {

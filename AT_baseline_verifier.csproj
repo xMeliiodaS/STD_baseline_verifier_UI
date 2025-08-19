@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <None Remove="Scripts\config.json" />
-    <None Remove="Scripts\open_azure_vsts_test.exe" />
+    <None Remove="Scripts\test_open_azure_vsts.exe" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -18,7 +18,7 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 		</None>
-		<None Update="Scripts\open_azure_vsts_test.exe">
+		<None Update="Scripts\test_open_azure_vsts.exe">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 		</None>
