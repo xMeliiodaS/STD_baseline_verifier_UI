@@ -53,7 +53,8 @@ namespace STD_baseline_verifier.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/AT_baseline_verifier;component/std_baseline_verifier/views/mainwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/AT_baseline_verifier;V1.0.0.0;component/std_baseline_verifier/views/mainwindow.x" +
+                    "aml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\..\STD_baseline_verifier\Views\MainWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
