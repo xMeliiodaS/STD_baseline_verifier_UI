@@ -72,7 +72,7 @@ namespace AT_baseline_verifier
             }
         }
 
-        private void RunScript_Click(object sender, RoutedEventArgs e)
+        private async void RunScript_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(selectedFilePath) || string.IsNullOrWhiteSpace(STDNameInput.Text))
             {
@@ -88,10 +88,6 @@ namespace AT_baseline_verifier
                 json["std_name"] = STDNameInput.Text;
                 File.WriteAllText(userConfigPath, json.ToString());
 
-                // Use AppContext.BaseDirectory for single-file publishes
-                string exeFolder = AppContext.BaseDirectory;
-
-                // EXE path
                 string pythonExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_open_azure_vsts.exe");
 
                 if (!File.Exists(pythonExePath))
@@ -99,6 +95,8 @@ namespace AT_baseline_verifier
                     StatusText.Text = $"Python EXE not found at {pythonExePath}";
                     return;
                 }
+
+                StatusText.Text = "Running verification...";
 
                 var psi = new ProcessStartInfo
                 {
@@ -110,15 +108,42 @@ namespace AT_baseline_verifier
                     CreateNoWindow = true
                 };
 
-                using (var process = Process.Start(psi))
-                {
-                    string output = process.StandardOutput.ReadToEnd();
-                    string errors = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
+                var outputBuilder = new System.Text.StringBuilder();
+                var errorBuilder = new System.Text.StringBuilder();
 
-                    StatusText.Text = !string.IsNullOrEmpty(errors)
-                        ? $"Error: {errors}"
-                        : $"Script executed successfully.\n{output}";
+                await Task.Run(() =>
+                {
+                    using (var process = new Process())
+                    {
+                        process.StartInfo = psi;
+
+                        process.OutputDataReceived += (s, ea) =>
+                        {
+                            if (!string.IsNullOrEmpty(ea.Data))
+                                outputBuilder.AppendLine(ea.Data);
+                        };
+
+                        process.ErrorDataReceived += (s, ea) =>
+                        {
+                            if (!string.IsNullOrEmpty(ea.Data))
+                                errorBuilder.AppendLine(ea.Data);
+                        };
+
+                        process.Start();
+                        process.BeginOutputReadLine();
+                        process.BeginErrorReadLine();
+                        process.WaitForExit();
+                    }
+                });
+
+                // ✅ Now update UI safely (only here)
+                if (errorBuilder.Length > 0)
+                {
+                    StatusText.Text = $"Error:\n{errorBuilder}";
+                }
+                else
+                {
+                    StatusText.Text = $"Script executed successfully:\n{outputBuilder}";
                 }
             }
             catch (Exception ex)
@@ -126,6 +151,7 @@ namespace AT_baseline_verifier
                 StatusText.Text = $"Execution failed: {ex.Message}";
             }
         }
+
 
 
         private void STDNameInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
