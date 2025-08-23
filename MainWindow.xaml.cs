@@ -4,12 +4,14 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Media.Animation;
 
 namespace AT_baseline_verifier
 {
     public partial class MainWindow : Window
     {
         private string selectedFilePath;
+        private Storyboard spinnerStoryboard;
 
         public MainWindow()
         {
@@ -95,6 +97,11 @@ namespace AT_baseline_verifier
                     StatusText.Text = $"Python EXE not found at {pythonExePath}";
                     return;
                 }
+                // Show spinner, hide play icon
+                StartButtonSpinner();
+                RunIcon.Visibility = Visibility.Collapsed;
+                RunButtonText.Text = "Running…";
+                RunButton.IsEnabled = false;
 
                 StatusText.Text = "Running verification...";
 
@@ -136,19 +143,37 @@ namespace AT_baseline_verifier
                     }
                 });
 
-                // ✅ Now update UI safely (only here)
+                // Update UI safely
                 if (errorBuilder.Length > 0)
                 {
                     StatusText.Text = $"Error:\n{errorBuilder}";
+
+                    // Hide spinner, restore play icon
+                    StopButtonSpinner();
+                    RunIcon.Visibility = Visibility.Visible;
+                    RunButtonText.Text = "Run Verification";
+                    RunButton.IsEnabled = true;
                 }
                 else
                 {
                     StatusText.Text = $"Script executed successfully:\n{outputBuilder}";
+
+                    // Hide spinner, restore play icon
+                    StopButtonSpinner();
+                    RunIcon.Visibility = Visibility.Visible;
+                    RunButtonText.Text = "Run Verification";
+                    RunButton.IsEnabled = true;
                 }
             }
             catch (Exception ex)
             {
                 StatusText.Text = $"Execution failed: {ex.Message}";
+
+                // Hide spinner, restore play icon
+                StopButtonSpinner();
+                RunIcon.Visibility = Visibility.Visible;
+                RunButtonText.Text = "Run Verification";
+                RunButton.IsEnabled = true;
             }
         }
 
@@ -238,5 +263,30 @@ namespace AT_baseline_verifier
             }
         }
     }
-}
+
+        private void StartButtonSpinner()
+        {
+            ButtonSpinner.Visibility = Visibility.Visible;
+
+            spinnerStoryboard = new Storyboard();
+            var anim = new DoubleAnimation
+            {
+                From = 0,
+                To = 360,
+                Duration = new Duration(TimeSpan.FromSeconds(1)),
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            Storyboard.SetTarget(anim, ButtonSpinnerRotate);
+            Storyboard.SetTargetProperty(anim, new PropertyPath("Angle"));
+            spinnerStoryboard.Children.Add(anim);
+            spinnerStoryboard.Begin();
+        }
+
+        private void StopButtonSpinner()
+        {
+            spinnerStoryboard?.Stop();
+            ButtonSpinner.Visibility = Visibility.Collapsed;
+        }
+
+    }
 }

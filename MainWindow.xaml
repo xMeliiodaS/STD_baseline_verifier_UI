@@ -90,27 +90,41 @@
                                IsHitTestVisible="False"/>
                 </Grid>
 
-                <!-- Run Script -->
-                <Button Click="RunScript_Click" 
-                        Style="{StaticResource GreenButton}" 
-                        Cursor="Hand">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+<Button x:Name="RunButton" Click="RunScript_Click" Style="{StaticResource GreenButton}" Cursor="Hand">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="▶" 
-                                   FontSize="18" 
-                                   Margin="0,0,8,0" 
-                                   VerticalAlignment="Center" />
+        <!-- Play Icon -->
+        <TextBlock x:Name="RunIcon" Text="▶" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center" />
 
-                        <TextBlock Grid.Column="1" 
-                                   Text="Run Verification" 
-                                   TextWrapping="Wrap" 
-                                   VerticalAlignment="Center" />
-                    </Grid>
-                </Button>
+        <!-- Button Text -->
+        <TextBlock x:Name="RunButtonText" Grid.Column="1" Text="Run Verification" TextWrapping="Wrap" VerticalAlignment="Center" />
+
+        <!-- Spinner inside button -->
+        <Ellipse x:Name="ButtonSpinner" Width="16" Height="16" Stroke="White" StrokeThickness="2"
+                 StrokeDashArray="2,2" Visibility="Collapsed"
+                 HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,8,0">
+            <Ellipse.RenderTransform>
+                <RotateTransform x:Name="ButtonSpinnerRotate" CenterX="8" CenterY="8"/>
+            </Ellipse.RenderTransform>
+            <Ellipse.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard x:Name="ButtonSpinnerStoryboard">
+                        <Storyboard RepeatBehavior="Forever">
+                            <DoubleAnimation Storyboard.TargetName="ButtonSpinnerRotate"
+                                             Storyboard.TargetProperty="Angle"
+                                             From="0" To="360" Duration="0:0:1"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Ellipse.Triggers>
+        </Ellipse>
+    </Grid>
+</Button>
+
 
             </StackPanel>
         </Border>
