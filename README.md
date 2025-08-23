@@ -15,7 +15,6 @@ It connects with the Python backend to present validation results in a user-frie
 ---
 
 ## 🖥️ Features
-- Custom **Solo Leveling–inspired UI** (non-standard window design).  
 - Input forms for selecting data files / test cases.  
 - Direct integration with Python scripts.  
 - Visual display of logs and results.  
@@ -27,7 +26,7 @@ It connects with the Python backend to present validation results in a user-frie
 1. User interacts with the WPF interface.  
 2. The app prepares the parameters and calls the Python backend.  
 3. Python processes the data and generates outputs (logs + reports).  
-4. WPF displays the results in the UI.  
+4. WPF displays the results in the browser.  
 
 ---
 
