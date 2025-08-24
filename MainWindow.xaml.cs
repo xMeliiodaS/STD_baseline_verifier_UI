@@ -152,26 +152,22 @@ namespace AT_baseline_verifier
                 {
                     LogError(errorBuilder.ToString());
 
-                    // Hide spinner, restore play icon
-                    StopButtonSpinner();
 
                     SetResultStatus("Execution failed. See log for details.", true);
                 }
                 else
                 {
-                    // Hide spinner, restore play icon
-                    StopButtonSpinner();
-
                     SetResultStatus("Script executed successfully!", false);
-
                 }
+                // Hide spinner and restore play icon
+                StopButtonSpinner();
 
             }
             catch (Exception ex)
             {
-                LogError(ex.ToString()); // <- log exception details
+                LogError(ex.ToString());
 
-                // Hide spinner, restore play icon
+                // Hide spinner and restore play icon
                 StopButtonSpinner();
 
                 SetResultStatus("Execution failed. See log for details.", true);
