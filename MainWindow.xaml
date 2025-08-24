@@ -33,7 +33,7 @@
             <StackPanel>
 
                 <!-- File Selector -->
-                <Button Click="SelectFile_Click" 
+                <Button x:Name="SelectSTDButton" Click="SelectFile_Click" 
                         Style="{StaticResource BlueButton}" 
                         Margin="0,0,0,4" 
                         Cursor="Hand">

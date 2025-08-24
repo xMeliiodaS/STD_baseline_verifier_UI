@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace AT_baseline_verifier
@@ -12,6 +13,7 @@ namespace AT_baseline_verifier
     {
         private string selectedFilePath;
         private Storyboard spinnerStoryboard;
+        private readonly string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.log");
 
         public MainWindow()
         {
@@ -94,7 +96,8 @@ namespace AT_baseline_verifier
 
                 if (!File.Exists(pythonExePath))
                 {
-                    StatusText.Text = $"Python EXE not found at {pythonExePath}";
+                    StatusText.Text = "Error, python EXE not found.";
+                    LogError($"Python EXE not found at {pythonExePath}");
                     return;
                 }
                 // Show spinner, hide play icon
@@ -102,6 +105,7 @@ namespace AT_baseline_verifier
                 RunIcon.Visibility = Visibility.Collapsed;
                 RunButtonText.Text = "Running…";
                 RunButton.IsEnabled = false;
+                SelectSTDButton.IsEnabled = false;
 
                 StatusText.Text = "Running verification...";
 
@@ -146,34 +150,32 @@ namespace AT_baseline_verifier
                 // Update UI safely
                 if (errorBuilder.Length > 0)
                 {
-                    StatusText.Text = $"Error:\n{errorBuilder}";
+                    LogError(errorBuilder.ToString());
 
                     // Hide spinner, restore play icon
                     StopButtonSpinner();
-                    RunIcon.Visibility = Visibility.Visible;
-                    RunButtonText.Text = "Run Verification";
-                    RunButton.IsEnabled = true;
+
+                    SetResultStatus("Execution failed. See log for details.", true);
                 }
                 else
                 {
-                    StatusText.Text = $"Script executed successfully:\n{outputBuilder}";
-
                     // Hide spinner, restore play icon
                     StopButtonSpinner();
-                    RunIcon.Visibility = Visibility.Visible;
-                    RunButtonText.Text = "Run Verification";
-                    RunButton.IsEnabled = true;
+
+                    SetResultStatus("Script executed successfully!", false);
+
                 }
+
             }
             catch (Exception ex)
             {
-                StatusText.Text = $"Execution failed: {ex.Message}";
+                LogError(ex.ToString()); // <- log exception details
 
                 // Hide spinner, restore play icon
                 StopButtonSpinner();
-                RunIcon.Visibility = Visibility.Visible;
-                RunButtonText.Text = "Run Verification";
-                RunButton.IsEnabled = true;
+
+                SetResultStatus("Execution failed. See log for details.", true);
+
             }
         }
 
@@ -255,7 +257,7 @@ namespace AT_baseline_verifier
             {
                 selectedFilePath = files[0];
                 SelectedFileLabel.Text = selectedFilePath;
-                StatusText.Text = "File selected via drag & drop.";
+                StatusText.Text = "File dropped successfully";
             }
             else
             {
@@ -286,7 +288,29 @@ namespace AT_baseline_verifier
         {
             spinnerStoryboard?.Stop();
             ButtonSpinner.Visibility = Visibility.Collapsed;
+            RunIcon.Visibility = Visibility.Visible;
+            RunButtonText.Text = "Run Verification";
+            RunButton.IsEnabled = true;
+            SelectSTDButton.IsEnabled = true;
         }
 
+        private void LogError(string message)
+        {
+            try
+            {
+                File.AppendAllText(logFilePath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} ERROR: {message}\n");
+            }
+            catch
+            {
+                // If logging fails, we silently ignore it to avoid crashing the app
+            }
+        }
+
+        private void SetResultStatus(string message, bool isError = false)
+        {
+            StatusText.Text = message;
+            StatusText.FontWeight = FontWeights.Bold;
+            StatusText.Foreground = new SolidColorBrush(isError ? Color.FromRgb(255, 102, 102) : Color.FromRgb(102, 255, 102));
+        }
     }
 }
