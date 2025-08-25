@@ -57,7 +57,7 @@ namespace AT_baseline_verifier
             if (openFileDialog.ShowDialog() == true)
             {
                 selectedFilePath = openFileDialog.FileName;
-                SelectedFileLabel.Text = selectedFilePath;
+                SelectedFileLabel.Text = System.IO.Path.GetFileName(selectedFilePath);
 
                 try
                 {
@@ -78,6 +78,8 @@ namespace AT_baseline_verifier
 
         private async void RunScript_Click(object sender, RoutedEventArgs e)
         {
+            File.AppendAllText(logFilePath, "======================================================");
+
             if (string.IsNullOrWhiteSpace(selectedFilePath) || string.IsNullOrWhiteSpace(STDNameInput.Text))
             {
                 StatusText.Text = "Please select a file and enter STD name.";
@@ -171,8 +173,9 @@ namespace AT_baseline_verifier
                 StopButtonSpinner();
 
                 SetResultStatus("Execution failed. See log for details.", true);
-
+                File.AppendAllText(logFilePath, "======================================================");
             }
+            File.AppendAllText(logFilePath, "======================================================");
         }
 
 
@@ -308,5 +311,6 @@ namespace AT_baseline_verifier
             StatusText.FontWeight = FontWeights.Bold;
             StatusText.Foreground = new SolidColorBrush(isError ? Color.FromRgb(255, 102, 102) : Color.FromRgb(102, 255, 102));
         }
+
     }
 }
