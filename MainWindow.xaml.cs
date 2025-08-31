@@ -187,6 +187,20 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
+        private void IterationPathInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            IterationPathPlaceholder.Visibility = string.IsNullOrEmpty(IterationPathInput.Text)
+                ? Visibility.Visible
+                : Visibility.Hidden;
+        }
+
+        private void VVVersionInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            VVVersionPlaceholder.Visibility = string.IsNullOrEmpty(VVVersionInput.Text)
+                ? Visibility.Visible
+                : Visibility.Hidden;
+        }
+
         // Drag & Drop Handlers
         private void Border_DragEnter(object sender, DragEventArgs e)
         {
