@@ -26,24 +26,33 @@ namespace AT_baseline_verifier
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "AT_baseline_verifier"
             );
+
             Directory.CreateDirectory(appDataFolder);
 
             string userConfigPath = Path.Combine(appDataFolder, "config.json");
             string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
 
-            if (!File.Exists(userConfigPath))
+            try
             {
-                if (File.Exists(defaultConfigPath))
+                if (!File.Exists(userConfigPath))  // user config missing
                 {
-                    File.Copy(defaultConfigPath, userConfigPath);
+                    if (File.Exists(defaultConfigPath))  // default exists?
+                    {
+                        File.Copy(defaultConfigPath, userConfigPath); // ✅ copy it
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException($"Default config.json not found at {defaultConfigPath}");
+                    }
                 }
-                else
-                {
-                    throw new FileNotFoundException($"Default config.json not found at {defaultConfigPath}");
-                }
-            }
 
-            return userConfigPath;
+                return userConfigPath;
+            }
+            catch (Exception ex)
+            {
+                // Consider logging this somewhere centralized
+                throw new IOException($"Failed to ensure user config exists: {ex.Message}", ex);
+            }
         }
 
         private void SelectFile_Click(object sender, RoutedEventArgs e)
@@ -80,9 +89,10 @@ namespace AT_baseline_verifier
         {
             File.AppendAllText(logFilePath, "======================================================");
 
-            if (string.IsNullOrWhiteSpace(selectedFilePath) || string.IsNullOrWhiteSpace(STDNameInput.Text))
+            if (string.IsNullOrWhiteSpace(selectedFilePath) || string.IsNullOrWhiteSpace(STDNameInput.Text)
+                || string.IsNullOrWhiteSpace(IterationPathInput.Text) || string.IsNullOrWhiteSpace(VVVersionInput.Text))
             {
-                StatusText.Text = "Please select a file and enter STD name.";
+                StatusText.Text = "Please select a file and Fill all Fields";
                 return;
             }
 
@@ -91,7 +101,11 @@ namespace AT_baseline_verifier
                 string userConfigPath = EnsureUserConfigExists();
 
                 var json = JObject.Parse(File.ReadAllText(userConfigPath));
+
                 json["std_name"] = STDNameInput.Text;
+                json["iteration_path"] = IterationPathInput.Text;
+                json["current_version"] = VVVersionInput.Text;
+
                 File.WriteAllText(userConfigPath, json.ToString());
 
                 string pythonExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_open_azure_vsts.exe");
