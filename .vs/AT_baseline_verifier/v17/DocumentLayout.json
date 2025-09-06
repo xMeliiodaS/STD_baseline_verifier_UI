@@ -3,6 +3,30 @@
   "WorkspaceRootPath": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\std_baseline_verifier\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:std_baseline_verifier\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\std_baseline_verifier\\viewmodels\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:std_baseline_verifier\\viewmodels\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\std_baseline_verifier\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:std_baseline_verifier\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\std_baseline_verifier\\viewmodels\\asyncrelaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:std_baseline_verifier\\viewmodels\\asyncrelaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\std_baseline_verifier\\services\\pythonautomationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:std_baseline_verifier\\services\\pythonautomationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\std_baseline_verifier\\models\\userinputmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:std_baseline_verifier\\models\\userinputmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -19,12 +43,89 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\Views\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "STD_baseline_verifier\\Views\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\Views\\MainWindow.xaml",
+              "RelativeToolTip": "STD_baseline_verifier\\Views\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-09-06T15:05:49.744Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "RelayCommand.cs",
+              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\ViewModels\\RelayCommand.cs",
+              "RelativeDocumentMoniker": "STD_baseline_verifier\\ViewModels\\RelayCommand.cs",
+              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\ViewModels\\RelayCommand.cs",
+              "RelativeToolTip": "STD_baseline_verifier\\ViewModels\\RelayCommand.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-06T15:05:47.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AsyncRelayCommand.cs",
+              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\ViewModels\\AsyncRelayCommand.cs",
+              "RelativeDocumentMoniker": "STD_baseline_verifier\\ViewModels\\AsyncRelayCommand.cs",
+              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\ViewModels\\AsyncRelayCommand.cs",
+              "RelativeToolTip": "STD_baseline_verifier\\ViewModels\\AsyncRelayCommand.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-06T15:05:45.007Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MainViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\ViewModels\\MainViewModel.cs",
+              "RelativeDocumentMoniker": "STD_baseline_verifier\\ViewModels\\MainViewModel.cs",
+              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\ViewModels\\MainViewModel.cs",
+              "RelativeToolTip": "STD_baseline_verifier\\ViewModels\\MainViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-06T15:05:40.168Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PythonAutomationService.cs",
+              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\Services\\PythonAutomationService.cs",
+              "RelativeDocumentMoniker": "STD_baseline_verifier\\Services\\PythonAutomationService.cs",
+              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\Services\\PythonAutomationService.cs",
+              "RelativeToolTip": "STD_baseline_verifier\\Services\\PythonAutomationService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-06T15:05:27.5Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UserInputModel.cs",
+              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\Models\\UserInputModel.cs",
+              "RelativeDocumentMoniker": "STD_baseline_verifier\\Models\\UserInputModel.cs",
+              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\STD_baseline_verifier\\Models\\UserInputModel.cs",
+              "RelativeToolTip": "STD_baseline_verifier\\Models\\UserInputModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-06T15:05:17.028Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "MainWindow.xaml.cs",
               "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml.cs",
               "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AgIAAEEAAAAAAAAAAAAYwEoAAAAUAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-06T14:51:17.223Z",
               "EditorCaption": ""
