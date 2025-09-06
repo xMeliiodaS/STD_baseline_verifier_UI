@@ -108,7 +108,7 @@ namespace AT_baseline_verifier
 
                 File.WriteAllText(userConfigPath, json.ToString());
 
-                string pythonExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_open_azure_vsts.exe");
+                string pythonExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_bugs_std_validation.exe");
 
                 if (!File.Exists(pythonExePath))
                 {

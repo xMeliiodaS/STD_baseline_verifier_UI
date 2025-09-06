@@ -10,15 +10,22 @@
 
   <ItemGroup>
     <None Remove="Scripts\config.json" />
-    <None Remove="Scripts\test_open_azure_vsts.exe" />
+    <None Remove="Scripts\test_bugs_std_validation.exe" />
+    <None Remove="Scripts\test_excel_violations.exe" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Scripts\test_bugs_std_validation.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Scripts\test_excel_violations.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 	<ItemGroup>
 		<None Update="Scripts\config.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
-		</None>
-		<None Update="Scripts\test_open_azure_vsts.exe">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 		</None>
