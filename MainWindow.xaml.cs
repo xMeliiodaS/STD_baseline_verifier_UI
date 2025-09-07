@@ -3,17 +3,24 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using IOPath = System.IO.Path;
 
 namespace AT_baseline_verifier
 {
     public partial class MainWindow : Window
     {
         private string selectedFilePath;
-        private Storyboard spinnerStoryboard;
-        private readonly string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.log");
+        private Storyboard automationSpinnerStoryboard;
+        private Storyboard violationSpinnerStoryboard;
+        private readonly string logFilePath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.log");
 
         public MainWindow()
         {
@@ -22,23 +29,23 @@ namespace AT_baseline_verifier
 
         private string EnsureUserConfigExists()
         {
-            string appDataFolder = Path.Combine(
+            string appDataFolder = IOPath.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "AT_baseline_verifier"
             );
 
             Directory.CreateDirectory(appDataFolder);
 
-            string userConfigPath = Path.Combine(appDataFolder, "config.json");
-            string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+            string userConfigPath = IOPath.Combine(appDataFolder, "config.json");
+            string defaultConfigPath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
 
             try
             {
-                if (!File.Exists(userConfigPath))  // user config missing
+                if (!File.Exists(userConfigPath))
                 {
-                    if (File.Exists(defaultConfigPath))  // default exists?
+                    if (File.Exists(defaultConfigPath))
                     {
-                        File.Copy(defaultConfigPath, userConfigPath); // ✅ copy it
+                        File.Copy(defaultConfigPath, userConfigPath);
                     }
                     else
                     {
@@ -50,7 +57,6 @@ namespace AT_baseline_verifier
             }
             catch (Exception ex)
             {
-                // Consider logging this somewhere centralized
                 throw new IOException($"Failed to ensure user config exists: {ex.Message}", ex);
             }
         }
@@ -66,12 +72,11 @@ namespace AT_baseline_verifier
             if (openFileDialog.ShowDialog() == true)
             {
                 selectedFilePath = openFileDialog.FileName;
-                SelectedFileLabel.Text = System.IO.Path.GetFileName(selectedFilePath);
+                SelectedFileLabel.Text = IOPath.GetFileName(selectedFilePath);
 
                 try
                 {
                     string userConfigPath = EnsureUserConfigExists();
-
                     var json = JObject.Parse(File.ReadAllText(userConfigPath));
                     json["excel_path"] = selectedFilePath;
                     File.WriteAllText(userConfigPath, json.ToString());
@@ -85,49 +90,55 @@ namespace AT_baseline_verifier
             }
         }
 
-        private async void RunScript_Click(object sender, RoutedEventArgs e)
+        private async Task RunExternalProcess(string exeName, string successMessage, bool useConfig = true)
         {
             File.AppendAllText(logFilePath, "======================================================");
 
-            if (string.IsNullOrWhiteSpace(selectedFilePath) || string.IsNullOrWhiteSpace(STDNameInput.Text)
-                || string.IsNullOrWhiteSpace(IterationPathInput.Text) || string.IsNullOrWhiteSpace(VVVersionInput.Text))
+            if (string.IsNullOrWhiteSpace(selectedFilePath))
             {
-                StatusText.Text = "Please select a file and Fill all Fields";
+                SetResultStatus("Please Select an Excel File.", true);
                 return;
+            }
+
+            if (useConfig)
+            {
+                if (string.IsNullOrWhiteSpace(STDNameInput.Text) ||
+                    string.IsNullOrWhiteSpace(IterationPathInput.Text) ||
+                    string.IsNullOrWhiteSpace(VVVersionInput.Text))
+                {
+                    SetResultStatus("Please Fill all fields.", true);
+                    return;
+                }
             }
 
             try
             {
-                string userConfigPath = EnsureUserConfigExists();
-
-                var json = JObject.Parse(File.ReadAllText(userConfigPath));
-
-                json["std_name"] = STDNameInput.Text;
-                json["iteration_path"] = IterationPathInput.Text;
-                json["current_version"] = VVVersionInput.Text;
-
-                File.WriteAllText(userConfigPath, json.ToString());
-
-                string pythonExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_bugs_std_validation.exe");
-
-                if (!File.Exists(pythonExePath))
+                if (useConfig)
                 {
-                    StatusText.Text = "Error, python EXE not found.";
-                    LogError($"Python EXE not found at {pythonExePath}");
+                    string userConfigPath = EnsureUserConfigExists();
+                    var json = JObject.Parse(File.ReadAllText(userConfigPath));
+                    json["std_name"] = STDNameInput.Text;
+                    json["iteration_path"] = IterationPathInput.Text;
+                    json["current_version"] = VVVersionInput.Text;
+                    File.WriteAllText(userConfigPath, json.ToString());
+                }
+
+                string exePath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, exeName);
+                if (!File.Exists(exePath))
+                {
+                    SetResultStatus($"Error: {exeName} not found.", true);
+                    LogError($"{exeName} not found at {exePath}");
                     return;
                 }
-                // Show spinner, hide play icon
-                StartButtonSpinner();
-                RunIcon.Visibility = Visibility.Collapsed;
-                RunButtonText.Text = "Running…";
-                RunButton.IsEnabled = false;
-                SelectSTDButton.IsEnabled = false;
 
-                StatusText.Text = "Running verification...";
+                RunAutomationButton.IsEnabled = false;
+                RunViolationButton.IsEnabled = false;
+                SelectSTDButton.IsEnabled = false;
+                StatusText.Text = "Running...";
 
                 var psi = new ProcessStartInfo
                 {
-                    FileName = pythonExePath,
+                    FileName = exePath,
                     Arguments = $"\"{selectedFilePath}\" \"{STDNameInput.Text}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -135,8 +146,8 @@ namespace AT_baseline_verifier
                     CreateNoWindow = true
                 };
 
-                var outputBuilder = new System.Text.StringBuilder();
-                var errorBuilder = new System.Text.StringBuilder();
+                var outputBuilder = new StringBuilder();
+                var errorBuilder = new StringBuilder();
 
                 await Task.Run(() =>
                 {
@@ -163,97 +174,66 @@ namespace AT_baseline_verifier
                     }
                 });
 
-                // Update UI safely
                 if (errorBuilder.Length > 0)
                 {
                     LogError(errorBuilder.ToString());
-
-
                     SetResultStatus("Execution failed. See log for details.", true);
                 }
                 else
                 {
-                    SetResultStatus("Script executed successfully!", false);
+                    SetResultStatus(successMessage, false);
                 }
-                // Hide spinner and restore play icon
-                StopButtonSpinner();
-
             }
             catch (Exception ex)
             {
                 LogError(ex.ToString());
-
-                // Hide spinner and restore play icon
-                StopButtonSpinner();
-
                 SetResultStatus("Execution failed. See log for details.", true);
+            }
+            finally
+            {
+                RunAutomationButton.IsEnabled = true;
+                RunViolationButton.IsEnabled = true;
+                SelectSTDButton.IsEnabled = true;
                 File.AppendAllText(logFilePath, "======================================================");
             }
-            File.AppendAllText(logFilePath, "======================================================");
+        }
+
+        private async void RunAutomation_Click(object sender, RoutedEventArgs e)
+        {
+            StartButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ButtonSpinnerRotate, ref automationSpinnerStoryboard);
+            await RunExternalProcess("test_bugs_std_validation.exe", "Automation completed successfully!", true);
+            StopButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ref automationSpinnerStoryboard);
+        }
+
+        private async void RunViolationCheck_Click(object sender, RoutedEventArgs e)
+        {
+            StartButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ViolationButtonSpinnerRotate, ref violationSpinnerStoryboard);
+            await RunExternalProcess("test_excel_violations.exe", "Violation check completed successfully!", false);
+            StopButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ref violationSpinnerStoryboard);
         }
 
 
-
-        private void STDNameInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void STDNameInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             STDPlaceholder.Visibility = string.IsNullOrEmpty(STDNameInput.Text)
                 ? Visibility.Visible
                 : Visibility.Hidden;
         }
 
-        private void IterationPathInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void IterationPathInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             IterationPathPlaceholder.Visibility = string.IsNullOrEmpty(IterationPathInput.Text)
                 ? Visibility.Visible
                 : Visibility.Hidden;
         }
 
-        private void VVVersionInput_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void VVVersionInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             VVVersionPlaceholder.Visibility = string.IsNullOrEmpty(VVVersionInput.Text)
                 ? Visibility.Visible
                 : Visibility.Hidden;
         }
 
-        // Drag & Drop Handlers
-        private void Border_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 0 && (files[0].EndsWith(".xls", StringComparison.OrdinalIgnoreCase) || files[0].EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase)))
-                {
-                    e.Effects = DragDropEffects.Copy;
-                }
-                else
-                {
-                    e.Effects = DragDropEffects.None;
-                }
-            }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
-            e.Handled = true;
-        }
-
-        private void Border_Drop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 0 && (files[0].EndsWith(".xls", StringComparison.OrdinalIgnoreCase) || files[0].EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase)))
-                {
-                    selectedFilePath = files[0];
-                    SelectedFileLabel.Text = selectedFilePath;
-                    StatusText.Text = "File dropped successfully.";
-                }
-                else
-                {
-                    StatusText.Text = "Only Excel files (.xls, .xlsx) are supported.";
-                }
-            }
-        }
         private void Window_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -263,41 +243,34 @@ namespace AT_baseline_verifier
                 {
                     e.Effects = DragDropEffects.Copy;
                 }
-                else
-                {
-                    e.Effects = DragDropEffects.None;
-                }
+                else e.Effects = DragDropEffects.None;
             }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
+            else e.Effects = DragDropEffects.None;
+
             e.Handled = true;
         }
 
-    private void Window_Drop(object sender, DragEventArgs e)
-    {
-        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        private void Window_Drop(object sender, DragEventArgs e)
         {
-            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files.Length > 0 && (files[0].EndsWith(".xls") || files[0].EndsWith(".xlsx")))
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                selectedFilePath = files[0];
-                SelectedFileLabel.Text = selectedFilePath;
-                StatusText.Text = "File dropped successfully";
-            }
-            else
-            {
-                StatusText.Text = "Invalid file format. Please drop an Excel file.";
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files.Length > 0 && (files[0].EndsWith(".xls") || files[0].EndsWith(".xlsx")))
+                {
+                    selectedFilePath = files[0];
+                    SelectedFileLabel.Text = selectedFilePath;
+                    StatusText.Text = "File dropped successfully";
+                }
+                else StatusText.Text = "Invalid file format. Please drop an Excel file.";
             }
         }
-    }
 
-        private void StartButtonSpinner()
+        private void StartButtonSpinner(Button targetButton, TextBlock icon, TextBlock buttonText, Ellipse spinner, RotateTransform spinnerRotate, ref Storyboard storyboard)
         {
-            ButtonSpinner.Visibility = Visibility.Visible;
+            spinner.Visibility = Visibility.Visible;
+            icon.Visibility = Visibility.Collapsed;
 
-            spinnerStoryboard = new Storyboard();
+            storyboard = new Storyboard();
             var anim = new DoubleAnimation
             {
                 From = 0,
@@ -305,40 +278,43 @@ namespace AT_baseline_verifier
                 Duration = new Duration(TimeSpan.FromSeconds(1)),
                 RepeatBehavior = RepeatBehavior.Forever
             };
-            Storyboard.SetTarget(anim, ButtonSpinnerRotate);
+            Storyboard.SetTarget(anim, spinnerRotate);
             Storyboard.SetTargetProperty(anim, new PropertyPath("Angle"));
-            spinnerStoryboard.Children.Add(anim);
-            spinnerStoryboard.Begin();
+            storyboard.Children.Add(anim);
+            storyboard.Begin();
+
+            targetButton.IsEnabled = false;
+            buttonText.Text = "Running…";
+            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         }
 
-        private void StopButtonSpinner()
+
+
+        private void StopButtonSpinner(Button targetButton, TextBlock icon, TextBlock buttonText, Ellipse spinner, ref Storyboard storyboard)
         {
-            spinnerStoryboard?.Stop();
-            ButtonSpinner.Visibility = Visibility.Collapsed;
-            RunIcon.Visibility = Visibility.Visible;
-            RunButtonText.Text = "Run Verification";
-            RunButton.IsEnabled = true;
-            SelectSTDButton.IsEnabled = true;
+            storyboard?.Stop();
+            spinner.Visibility = Visibility.Collapsed;
+            icon.Visibility = Visibility.Visible;
+
+            if (targetButton == RunAutomationButton)
+                buttonText.Text = "Check Bugs in STD";
+            else if (targetButton == RunViolationButton)
+                buttonText.Text = "Check STD Violations";
+
+            targetButton.IsEnabled = true;
         }
 
-        private void LogError(string message)
-        {
-            try
-            {
-                File.AppendAllText(logFilePath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} ERROR: {message}\n");
-            }
-            catch
-            {
-                // If logging fails, we silently ignore it to avoid crashing the app
-            }
-        }
 
         private void SetResultStatus(string message, bool isError = false)
         {
             StatusText.Text = message;
             StatusText.FontWeight = FontWeights.Bold;
-            StatusText.Foreground = new SolidColorBrush(isError ? Color.FromRgb(255, 102, 102) : Color.FromRgb(102, 255, 102));
+            StatusText.Foreground = new SolidColorBrush(isError ? Color.FromRgb(255, 102, 102) : Color.FromRgb(255, 255, 255));
         }
 
+        private void LogError(string error)
+        {
+            File.AppendAllText(logFilePath, $"\n[ERROR {DateTime.Now}] {error}\n");
+        }
     }
 }
