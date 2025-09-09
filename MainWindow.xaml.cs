@@ -92,11 +92,11 @@ namespace AT_baseline_verifier
 
         private async Task RunExternalProcess(string exeName, string successMessage, bool useConfig = true)
         {
-            File.AppendAllText(logFilePath, "======================================================");
+            File.AppendAllText(logFilePath, "======================================================\n");
 
             if (string.IsNullOrWhiteSpace(selectedFilePath))
             {
-                SetResultStatus("Please Select an Excel File.", true);
+                SetResultStatus("Please select an Excel file.", true);
                 return;
             }
 
@@ -106,13 +106,14 @@ namespace AT_baseline_verifier
                     string.IsNullOrWhiteSpace(IterationPathInput.Text) ||
                     string.IsNullOrWhiteSpace(VVVersionInput.Text))
                 {
-                    SetResultStatus("Please Fill all fields.", true);
+                    SetResultStatus("Please fill all fields.", true);
                     return;
                 }
             }
 
             try
             {
+                // Update config if needed
                 if (useConfig)
                 {
                     string userConfigPath = EnsureUserConfigExists();
@@ -136,52 +137,46 @@ namespace AT_baseline_verifier
                 SelectSTDButton.IsEnabled = false;
                 StatusText.Text = "Running...";
 
-                var psi = new ProcessStartInfo
-                {
-                    FileName = exePath,
-                    Arguments = $"\"{selectedFilePath}\" \"{STDNameInput.Text}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
                 var outputBuilder = new StringBuilder();
                 var errorBuilder = new StringBuilder();
 
-                await Task.Run(() =>
+                using (var process = new Process())
                 {
-                    using (var process = new Process())
+                    process.StartInfo = new ProcessStartInfo
                     {
-                        process.StartInfo = psi;
+                        FileName = exePath,
+                        Arguments = $"\"{selectedFilePath}\" \"{STDNameInput.Text}\"",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+                    process.EnableRaisingEvents = true;
 
-                        process.OutputDataReceived += (s, ea) =>
-                        {
-                            if (!string.IsNullOrEmpty(ea.Data))
-                                outputBuilder.AppendLine(ea.Data);
-                        };
+                    var tcs = new TaskCompletionSource<bool>();
 
-                        process.ErrorDataReceived += (s, ea) =>
-                        {
-                            if (!string.IsNullOrEmpty(ea.Data))
-                                errorBuilder.AppendLine(ea.Data);
-                        };
+                    process.OutputDataReceived += (s, e) => { if (e.Data != null) outputBuilder.AppendLine(e.Data); };
+                    process.ErrorDataReceived += (s, e) => { if (e.Data != null) errorBuilder.AppendLine(e.Data); };
+                    process.Exited += (s, e) => tcs.SetResult(true);
 
-                        process.Start();
-                        process.BeginOutputReadLine();
-                        process.BeginErrorReadLine();
-                        process.WaitForExit();
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    await tcs.Task; // wait until process fully exits
+
+                    string output = outputBuilder.ToString();
+                    string error = errorBuilder.ToString();
+
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        LogError(error);
+                        SetResultStatus("Execution failed. See log for details.", true);
                     }
-                });
-
-                if (errorBuilder.Length > 0)
-                {
-                    LogError(errorBuilder.ToString());
-                    SetResultStatus("Execution failed. See log for details.", true);
-                }
-                else
-                {
-                    SetResultStatus(successMessage, false);
+                    else
+                    {
+                        SetResultStatus(successMessage, false);
+                    }
                 }
             }
             catch (Exception ex)
@@ -194,9 +189,10 @@ namespace AT_baseline_verifier
                 RunAutomationButton.IsEnabled = true;
                 RunViolationButton.IsEnabled = true;
                 SelectSTDButton.IsEnabled = true;
-                File.AppendAllText(logFilePath, "======================================================");
+                File.AppendAllText(logFilePath, "======================================================\n");
             }
         }
+
 
         private async void RunAutomation_Click(object sender, RoutedEventArgs e)
         {
