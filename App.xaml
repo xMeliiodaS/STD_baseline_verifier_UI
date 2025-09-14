@@ -31,6 +31,7 @@
                 <Setter Property="Foreground" Value="White" />
                 <Setter Property="MaxWidth" Value="350" />
                 <Setter Property="Background" Value="#4CAF50" />
+                <Setter Property="BorderBrush" Value="#4CAF50" />
                 <!-- Material Design Green 500 -->
             </Style>
 
@@ -40,6 +41,7 @@
                 <!-- Material Design Blue 500 -->
                 <Setter Property="MaxWidth" Value="200" />
                 <Setter Property="Foreground" Value="White" />
+                <Setter Property="BorderBrush" Value="#0D47A1" />
             </Style>
 
 

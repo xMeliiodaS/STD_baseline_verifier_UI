@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <TextBlock Text="Automated Baseline Verifier"  
+        <TextBlock Text="Test Baseline Verifier"  
                    Foreground="White"  
                    HorizontalAlignment="Center"  
                    FontSize="26"  
@@ -85,7 +85,7 @@
                              HorizontalContentAlignment="Center"
                              TextChanged="STDNameInput_TextChanged"/>
                     <TextBlock x:Name="STDPlaceholder"  
-                       Text="Enter STD Name"  
+                       Text="STD Name"  
                        HorizontalAlignment="Center"  
                        Foreground="Gray"  
                        Margin="12,0,0,0"  
@@ -162,7 +162,7 @@
                             <TextBlock x:Name="RunIcon" Text="▶" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center" />
 
                             <!-- Button Text -->
-                            <TextBlock x:Name="RunButtonText" Grid.Column="1" Text="Check Bugs in STD" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <TextBlock x:Name="RunButtonText" Grid.Column="1" Text="Check STD Bugs in VSTS" TextWrapping="Wrap" VerticalAlignment="Center" />
 
                             <!-- Spinner inside button -->
                             <Ellipse x:Name="ButtonSpinner" Width="16" Height="16" Stroke="White" StrokeThickness="2"
@@ -200,10 +200,10 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- Play Icon -->
-                            <TextBlock x:Name="ViolationIcon" Text="⚠️" FontSize="15" Margin="0,-3,8,0" VerticalAlignment="Center" />
+                            <TextBlock x:Name="ViolationIcon" Text="" FontSize="15" VerticalAlignment="Center" />
 
                             <!-- Button Text -->
-                            <TextBlock x:Name="RunViolationButtonText" Grid.Column="1" Text="Check STD Violations" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <TextBlock x:Name="RunViolationButtonText" Grid.Column="1" Text="Validate STD Rules" TextWrapping="Wrap" VerticalAlignment="Center" />
 
                             <!-- Spinner inside button -->
                             <Ellipse x:Name="ViolationButtonSpinner" Width="16" Height="16" Stroke="White" StrokeThickness="2"  

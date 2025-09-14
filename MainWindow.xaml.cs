@@ -22,6 +22,12 @@ namespace AT_baseline_verifier
         private Storyboard violationSpinnerStoryboard;
         private readonly string logFilePath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.log");
 
+        private readonly string configJsonFileName = "config.json";
+        private readonly string configSTDNameKey = "std_name";
+        private readonly string configIterationPathKey = "iteration_path";
+        private readonly string configCurrentVVKey = "current_version";
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -36,8 +42,8 @@ namespace AT_baseline_verifier
 
             Directory.CreateDirectory(appDataFolder);
 
-            string userConfigPath = IOPath.Combine(appDataFolder, "config.json");
-            string defaultConfigPath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+            string userConfigPath = IOPath.Combine(appDataFolder, configJsonFileName);
+            string defaultConfigPath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, configJsonFileName);
 
             try
             {
@@ -49,7 +55,7 @@ namespace AT_baseline_verifier
                     }
                     else
                     {
-                        throw new FileNotFoundException($"Default config.json not found at {defaultConfigPath}");
+                        throw new FileNotFoundException($"Default {configJsonFileName} not found at {defaultConfigPath}");
                     }
                 }
 
@@ -92,11 +98,11 @@ namespace AT_baseline_verifier
 
         private async Task RunExternalProcess(string exeName, string successMessage, bool useConfig = true)
         {
-            File.AppendAllText(logFilePath, "======================================================\n");
+            File.AppendAllText(logFilePath, "======================================================");
 
             if (string.IsNullOrWhiteSpace(selectedFilePath))
             {
-                SetResultStatus("Please select an Excel file.", true);
+                SetResultStatus("Please Select an Excel File.", true);
                 return;
             }
 
@@ -106,21 +112,20 @@ namespace AT_baseline_verifier
                     string.IsNullOrWhiteSpace(IterationPathInput.Text) ||
                     string.IsNullOrWhiteSpace(VVVersionInput.Text))
                 {
-                    SetResultStatus("Please fill all fields.", true);
+                    SetResultStatus("Please Fill all fields.", true);
                     return;
                 }
             }
 
             try
             {
-                // Update config if needed
                 if (useConfig)
                 {
                     string userConfigPath = EnsureUserConfigExists();
                     var json = JObject.Parse(File.ReadAllText(userConfigPath));
-                    json["std_name"] = STDNameInput.Text;
-                    json["iteration_path"] = IterationPathInput.Text;
-                    json["current_version"] = VVVersionInput.Text;
+                    json[configSTDNameKey] = STDNameInput.Text;
+                    json[configIterationPathKey] = IterationPathInput.Text;
+                    json[configCurrentVVKey] = VVVersionInput.Text;
                     File.WriteAllText(userConfigPath, json.ToString());
                 }
 
@@ -137,46 +142,52 @@ namespace AT_baseline_verifier
                 SelectSTDButton.IsEnabled = false;
                 StatusText.Text = "Running...";
 
+                var psi = new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    Arguments = $"\"{selectedFilePath}\" \"{STDNameInput.Text}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
                 var outputBuilder = new StringBuilder();
                 var errorBuilder = new StringBuilder();
 
-                using (var process = new Process())
+                await Task.Run(() =>
                 {
-                    process.StartInfo = new ProcessStartInfo
+                    using (var process = new Process())
                     {
-                        FileName = exePath,
-                        Arguments = $"\"{selectedFilePath}\" \"{STDNameInput.Text}\"",
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    };
-                    process.EnableRaisingEvents = true;
+                        process.StartInfo = psi;
 
-                    var tcs = new TaskCompletionSource<bool>();
+                        process.OutputDataReceived += (s, ea) =>
+                        {
+                            if (!string.IsNullOrEmpty(ea.Data))
+                                outputBuilder.AppendLine(ea.Data);
+                        };
 
-                    process.OutputDataReceived += (s, e) => { if (e.Data != null) outputBuilder.AppendLine(e.Data); };
-                    process.ErrorDataReceived += (s, e) => { if (e.Data != null) errorBuilder.AppendLine(e.Data); };
-                    process.Exited += (s, e) => tcs.SetResult(true);
+                        process.ErrorDataReceived += (s, ea) =>
+                        {
+                            if (!string.IsNullOrEmpty(ea.Data))
+                                errorBuilder.AppendLine(ea.Data);
+                        };
 
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-
-                    await tcs.Task; // wait until process fully exits
-
-                    string output = outputBuilder.ToString();
-                    string error = errorBuilder.ToString();
-
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        LogError(error);
-                        SetResultStatus("Execution failed. See log for details.", true);
+                        process.Start();
+                        process.BeginOutputReadLine();
+                        process.BeginErrorReadLine();
+                        process.WaitForExit();
                     }
-                    else
-                    {
-                        SetResultStatus(successMessage, false);
-                    }
+                });
+
+                if (errorBuilder.Length > 0)
+                {
+                    LogError(errorBuilder.ToString());
+                    SetResultStatus("Execution failed. See log for details.", true);
+                }
+                else
+                {
+                    SetResultStatus(successMessage, false);
                 }
             }
             catch (Exception ex)
@@ -189,10 +200,9 @@ namespace AT_baseline_verifier
                 RunAutomationButton.IsEnabled = true;
                 RunViolationButton.IsEnabled = true;
                 SelectSTDButton.IsEnabled = true;
-                File.AppendAllText(logFilePath, "======================================================\n");
+                File.AppendAllText(logFilePath, "======================================================");
             }
         }
-
 
         private async void RunAutomation_Click(object sender, RoutedEventArgs e)
         {
@@ -254,10 +264,26 @@ namespace AT_baseline_verifier
                 if (files.Length > 0 && (files[0].EndsWith(".xls") || files[0].EndsWith(".xlsx")))
                 {
                     selectedFilePath = files[0];
-                    SelectedFileLabel.Text = selectedFilePath;
-                    StatusText.Text = "File dropped successfully";
+                    SelectedFileLabel.Text = IOPath.GetFileName(selectedFilePath); // same as click version
+
+                    try
+                    {
+                        string userConfigPath = EnsureUserConfigExists();
+                        var json = JObject.Parse(File.ReadAllText(userConfigPath));
+                        json["excel_path"] = selectedFilePath;
+                        File.WriteAllText(userConfigPath, json.ToString());
+
+                        StatusText.Text = $"Excel path updated to: {json["excel_path"]}";
+                    }
+                    catch (Exception ex)
+                    {
+                        StatusText.Text = $"Error updating config: {ex.Message}";
+                    }
                 }
-                else StatusText.Text = "Invalid file format. Please drop an Excel file.";
+                else
+                {
+                    StatusText.Text = "Invalid file format. Please drop an Excel file.";
+                }
             }
         }
 
@@ -293,9 +319,9 @@ namespace AT_baseline_verifier
             icon.Visibility = Visibility.Visible;
 
             if (targetButton == RunAutomationButton)
-                buttonText.Text = "Check Bugs in STD";
+                buttonText.Text = "Check STD Bugs in VSTS";
             else if (targetButton == RunViolationButton)
-                buttonText.Text = "Check STD Violations";
+                buttonText.Text = "Validate STD Rules";
 
             targetButton.IsEnabled = true;
         }
