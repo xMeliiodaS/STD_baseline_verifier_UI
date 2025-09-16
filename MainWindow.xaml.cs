@@ -117,7 +117,7 @@ namespace AT_baseline_verifier
 
                 SetActionButtonsEnabled(false);
 
-                StatusText.Text = "Running...";
+                SetResultStatus("Running...", false);
 
                 var psi = new ProcessStartInfo
                 {
@@ -252,11 +252,11 @@ namespace AT_baseline_verifier
                 Dispatcher.BeginInvoke(new Action(() => STDNameInput.SelectAll()));
 
                 // Update status
-                StatusText.Text = $"Excel path updated to: {json["excel_path"]}";
+                SetResultStatus($"Excel path updated to: {json["excel_path"]}", false);
             }
             catch (Exception ex)
             {
-                StatusText.Text = $"Error updating config: {ex.Message}";
+                SetResultStatus($"Error updating config: {ex.Message}", true);
             }
         }
 
@@ -305,7 +305,7 @@ namespace AT_baseline_verifier
                 }
                 else
                 {
-                    StatusText.Text = "Invalid file format. Please drop an Excel file.";
+                    SetResultStatus("Invalid file format. Please drop an Excel file.", false);
                 }
             }
         }
