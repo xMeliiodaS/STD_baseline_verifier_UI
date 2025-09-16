@@ -70,37 +70,6 @@ namespace AT_baseline_verifier
         }
 
 
-        // Handles Excel file selection via OpenFileDialog and updates config.json with the chosen path.
-        private void SelectFile_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Filter = "Excel Files|*.xls;*.xlsx",
-                Title = "Select an Excel File"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                selectedFilePath = openFileDialog.FileName;
-                SelectedFileLabel.Text = IOPath.GetFileName(selectedFilePath);
-
-                try
-                {
-                    string userConfigPath = EnsureUserConfigExists();
-                    var json = JObject.Parse(File.ReadAllText(userConfigPath));
-                    json["excel_path"] = selectedFilePath;
-                    File.WriteAllText(userConfigPath, json.ToString());
-
-                    StatusText.Text = $"Excel path updated to: {json["excel_path"]}";
-                }
-                catch (Exception ex)
-                {
-                    StatusText.Text = $"Error updating config: {ex.Message}";
-                }
-            }
-        }
-
-
         // Executes an external process with the given executable and arguments, handling logging, validation, and UI state.
         private async Task RunExternalProcess(string exeName, string successMessage, bool useConfig = true)
         {
@@ -127,6 +96,9 @@ namespace AT_baseline_verifier
             {
                 if (useConfig)
                 {
+                    TrimInputs();
+                    ReplaceCommasWithDots();
+
                     string userConfigPath = EnsureUserConfigExists();
                     var json = JObject.Parse(File.ReadAllText(userConfigPath));
                     json[configSTDNameKey] = STDNameInput.Text;
@@ -143,9 +115,8 @@ namespace AT_baseline_verifier
                     return;
                 }
 
-                RunAutomationButton.IsEnabled = false;
-                RunViolationButton.IsEnabled = false;
-                SelectSTDButton.IsEnabled = false;
+                SetActionButtonsEnabled(false);
+
                 StatusText.Text = "Running...";
 
                 var psi = new ProcessStartInfo
@@ -203,12 +174,11 @@ namespace AT_baseline_verifier
             }
             finally
             {
-                RunAutomationButton.IsEnabled = true;
-                RunViolationButton.IsEnabled = true;
-                SelectSTDButton.IsEnabled = true;
+                SetActionButtonsEnabled(true);
                 File.AppendAllText(logFilePath, "======================================================");
             }
         }
+
 
         // Runs the automation validation executable and updates the UI accordingly.
         private async void RunAutomation_Click(object sender, RoutedEventArgs e)
@@ -218,6 +188,7 @@ namespace AT_baseline_verifier
             StopButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ref automationSpinnerStoryboard);
         }
 
+
         // Runs the violation check executable and updates the UI accordingly.
         private async void RunViolationCheck_Click(object sender, RoutedEventArgs e)
         {
@@ -225,6 +196,7 @@ namespace AT_baseline_verifier
             await RunExternalProcess("test_excel_violations.exe", "Violation check completed successfully!", false);
             StopButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ref violationSpinnerStoryboard);
         }
+
 
         // Toggles placeholder visibility for STD Name input field based on text changes.
         private void STDNameInput_TextChanged(object sender, TextChangedEventArgs e)
@@ -234,6 +206,7 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
+
         // Toggles placeholder visibility for Iteration Path input field based on text changes.
         private void IterationPathInput_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -242,6 +215,7 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
+
         // Toggles placeholder visibility for Current Version input field based on text changes.
         private void VVVersionInput_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -249,6 +223,58 @@ namespace AT_baseline_verifier
                 ? Visibility.Visible
                 : Visibility.Hidden;
         }
+
+        // Sets the selected Excel file path, updates config.json, and refreshes the status label.
+        private void HandleExcelFileSelection(string filePath)
+        {
+            selectedFilePath = filePath;
+
+            // Get the base file name without extension for the input
+            string fileNameWithoutExt = IOPath.GetFileNameWithoutExtension(selectedFilePath);
+
+            // Update label with actual file name (including correct extension)
+            SelectedFileLabel.Text = IOPath.GetFileName(selectedFilePath);
+
+            try
+            {
+                // Ensure user config exists and update Excel path
+                string userConfigPath = EnsureUserConfigExists();
+                var json = JObject.Parse(File.ReadAllText(userConfigPath));
+                json["excel_path"] = selectedFilePath;
+                File.WriteAllText(userConfigPath, json.ToString());
+
+                // Set STD Name input if empty, focus it, and select all text
+                if (string.IsNullOrWhiteSpace(STDNameInput.Text))
+                {
+                    STDNameInput.Text = fileNameWithoutExt;
+                }
+                STDNameInput.Focus();
+                Dispatcher.BeginInvoke(new Action(() => STDNameInput.SelectAll()));
+
+                // Update status
+                StatusText.Text = $"Excel path updated to: {json["excel_path"]}";
+            }
+            catch (Exception ex)
+            {
+                StatusText.Text = $"Error updating config: {ex.Message}";
+            }
+        }
+
+
+        private void SelectFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Excel Files|*.xls;*.xlsx",
+                Title = "Select an Excel File"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                HandleExcelFileSelection(openFileDialog.FileName);
+            }
+        }
+
 
         // Handles drag-over events to validate whether the dragged file is an Excel file.
         private void Window_DragOver(object sender, DragEventArgs e)
@@ -267,7 +293,7 @@ namespace AT_baseline_verifier
             e.Handled = true;
         }
 
-        // Handles file drop events, validates Excel file type, and updates config.json with the dropped file path.
+
         private void Window_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -275,22 +301,7 @@ namespace AT_baseline_verifier
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 if (files.Length > 0 && (files[0].EndsWith(".xls") || files[0].EndsWith(".xlsx")))
                 {
-                    selectedFilePath = files[0];
-                    SelectedFileLabel.Text = IOPath.GetFileName(selectedFilePath); // same as click version
-
-                    try
-                    {
-                        string userConfigPath = EnsureUserConfigExists();
-                        var json = JObject.Parse(File.ReadAllText(userConfigPath));
-                        json["excel_path"] = selectedFilePath;
-                        File.WriteAllText(userConfigPath, json.ToString());
-
-                        StatusText.Text = $"Excel path updated to: {json["excel_path"]}";
-                    }
-                    catch (Exception ex)
-                    {
-                        StatusText.Text = $"Error updating config: {ex.Message}";
-                    }
+                    HandleExcelFileSelection(files[0]);
                 }
                 else
                 {
@@ -298,6 +309,7 @@ namespace AT_baseline_verifier
                 }
             }
         }
+
 
         // Starts a spinner animation for the specified button and updates UI state to "running".
         private void StartButtonSpinner(Button targetButton, TextBlock icon, TextBlock buttonText, Ellipse spinner, RotateTransform spinnerRotate, ref Storyboard storyboard)
@@ -323,6 +335,7 @@ namespace AT_baseline_verifier
             StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         }
 
+
         // Stops the spinner animation for the specified button and restores default button/UI state.
         private void StopButtonSpinner(Button targetButton, TextBlock icon, TextBlock buttonText, Ellipse spinner, ref Storyboard storyboard)
         {
@@ -338,6 +351,20 @@ namespace AT_baseline_verifier
             targetButton.IsEnabled = true;
         }
 
+
+        // Enables or disables the main action buttons.
+        private void SetActionButtonsEnabled(bool isEnabled)
+        {
+            RunAutomationButton.IsEnabled = isEnabled;
+            RunViolationButton.IsEnabled = isEnabled;
+            SelectSTDButton.IsEnabled = isEnabled;
+
+            STDNameInput.IsEnabled = isEnabled;
+            IterationPathInput.IsEnabled = isEnabled;
+            VVVersionInput.IsEnabled = isEnabled;
+        }
+
+
         // Updates the status text message with error or success formatting.
         private void SetResultStatus(string message, bool isError = false)
         {
@@ -345,6 +372,25 @@ namespace AT_baseline_verifier
             StatusText.FontWeight = FontWeights.Bold;
             StatusText.Foreground = new SolidColorBrush(isError ? Color.FromRgb(255, 102, 102) : Color.FromRgb(255, 255, 255));
         }
+
+
+        // Trims whitespace.
+        private void TrimInputs()
+        {
+            // Trim spaces
+            STDNameInput.Text = STDNameInput.Text.Trim();
+            IterationPathInput.Text = IterationPathInput.Text.Trim();
+            VVVersionInput.Text = VVVersionInput.Text.Trim();
+        }
+
+
+        // Replaces commas with dots
+        private void ReplaceCommasWithDots()
+        {
+            // Replace commas with dots only for Current Version field
+            VVVersionInput.Text = VVVersionInput.Text.Replace(',', '.');
+        }
+
 
         // Logs error messages with timestamps to the application log file.
         private void LogError(string error)

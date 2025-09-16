@@ -3,10 +3,6 @@
   "WorkspaceRootPath": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|c:\\users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\at_baseline_verifier\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5A49CB65-8531-471B-86C5-BF3E040EFDDB}|AT_baseline_verifier.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -22,41 +18,31 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml.cs",
-              "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AgIAADIBAAAAAAAAAAAswFYBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-14T20:23:48.847Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml",
               "RelativeDocumentMoniker": "MainWindow.xaml",
               "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml",
               "RelativeToolTip": "MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-14T20:04:41.111Z"
+              "WhenOpened": "2025-09-16T18:44:14.104Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "App.xaml",
-              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\App.xaml",
-              "RelativeDocumentMoniker": "App.xaml",
-              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\App.xaml",
-              "RelativeToolTip": "App.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-14T20:04:31.034Z",
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\\u05E1\u05DC\u05D9\u05DE\u05D0\u05DF\\source\\repos\\AT_baseline_verifier\\MainWindow.xaml.cs",
+              "RelativeToolTip": "MainWindow.xaml.cs",
+              "ViewState": "AgIAANsAAAAAAAAAAAAnwOgAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T18:15:31.884Z",
               "EditorCaption": ""
             }
           ]
