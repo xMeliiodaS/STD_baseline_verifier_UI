@@ -33,6 +33,8 @@ namespace AT_baseline_verifier
             InitializeComponent();
         }
 
+
+        // Ensures the user-specific configuration file exists by copying from the default if missing.
         private string EnsureUserConfigExists()
         {
             string appDataFolder = IOPath.Combine(
@@ -67,6 +69,8 @@ namespace AT_baseline_verifier
             }
         }
 
+
+        // Handles Excel file selection via OpenFileDialog and updates config.json with the chosen path.
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -96,6 +100,8 @@ namespace AT_baseline_verifier
             }
         }
 
+
+        // Executes an external process with the given executable and arguments, handling logging, validation, and UI state.
         private async Task RunExternalProcess(string exeName, string successMessage, bool useConfig = true)
         {
             File.AppendAllText(logFilePath, "======================================================");
@@ -204,6 +210,7 @@ namespace AT_baseline_verifier
             }
         }
 
+        // Runs the automation validation executable and updates the UI accordingly.
         private async void RunAutomation_Click(object sender, RoutedEventArgs e)
         {
             StartButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ButtonSpinnerRotate, ref automationSpinnerStoryboard);
@@ -211,6 +218,7 @@ namespace AT_baseline_verifier
             StopButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ref automationSpinnerStoryboard);
         }
 
+        // Runs the violation check executable and updates the UI accordingly.
         private async void RunViolationCheck_Click(object sender, RoutedEventArgs e)
         {
             StartButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ViolationButtonSpinnerRotate, ref violationSpinnerStoryboard);
@@ -218,7 +226,7 @@ namespace AT_baseline_verifier
             StopButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ref violationSpinnerStoryboard);
         }
 
-
+        // Toggles placeholder visibility for STD Name input field based on text changes.
         private void STDNameInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             STDPlaceholder.Visibility = string.IsNullOrEmpty(STDNameInput.Text)
@@ -226,6 +234,7 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
+        // Toggles placeholder visibility for Iteration Path input field based on text changes.
         private void IterationPathInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             IterationPathPlaceholder.Visibility = string.IsNullOrEmpty(IterationPathInput.Text)
@@ -233,6 +242,7 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
+        // Toggles placeholder visibility for Current Version input field based on text changes.
         private void VVVersionInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             VVVersionPlaceholder.Visibility = string.IsNullOrEmpty(VVVersionInput.Text)
@@ -240,6 +250,7 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
+        // Handles drag-over events to validate whether the dragged file is an Excel file.
         private void Window_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -256,6 +267,7 @@ namespace AT_baseline_verifier
             e.Handled = true;
         }
 
+        // Handles file drop events, validates Excel file type, and updates config.json with the dropped file path.
         private void Window_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -287,6 +299,7 @@ namespace AT_baseline_verifier
             }
         }
 
+        // Starts a spinner animation for the specified button and updates UI state to "running".
         private void StartButtonSpinner(Button targetButton, TextBlock icon, TextBlock buttonText, Ellipse spinner, RotateTransform spinnerRotate, ref Storyboard storyboard)
         {
             spinner.Visibility = Visibility.Visible;
@@ -310,8 +323,7 @@ namespace AT_baseline_verifier
             StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         }
 
-
-
+        // Stops the spinner animation for the specified button and restores default button/UI state.
         private void StopButtonSpinner(Button targetButton, TextBlock icon, TextBlock buttonText, Ellipse spinner, ref Storyboard storyboard)
         {
             storyboard?.Stop();
@@ -326,7 +338,7 @@ namespace AT_baseline_verifier
             targetButton.IsEnabled = true;
         }
 
-
+        // Updates the status text message with error or success formatting.
         private void SetResultStatus(string message, bool isError = false)
         {
             StatusText.Text = message;
@@ -334,6 +346,7 @@ namespace AT_baseline_verifier
             StatusText.Foreground = new SolidColorBrush(isError ? Color.FromRgb(255, 102, 102) : Color.FromRgb(255, 255, 255));
         }
 
+        // Logs error messages with timestamps to the application log file.
         private void LogError(string error)
         {
             File.AppendAllText(logFilePath, $"\n[ERROR {DateTime.Now}] {error}\n");
