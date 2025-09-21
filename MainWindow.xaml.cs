@@ -398,5 +398,15 @@ namespace AT_baseline_verifier
         {
             File.AppendAllText(logFilePath, $"\n[ERROR {DateTime.Now}] {error}\n");
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void OpenLastReport_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

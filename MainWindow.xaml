@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="AT Baseline Verifier"
-        Height="580" Width="690"
+        Height="575" Width="690" MinWidth="690" MinHeight="575"
         Background="#1E1E1E"
         WindowStartupLocation="CenterScreen"
         Style="{StaticResource MaterialDesignWindow}"
@@ -14,7 +14,7 @@
 
     <Grid Margin="20,20,20,5">
         <Grid.LayoutTransform>
-            <ScaleTransform ScaleX="1.15" ScaleY="1.2"/>
+            <ScaleTransform ScaleX="1.15" ScaleY="1.15"/>
         </Grid.LayoutTransform>
 
         <Grid.RowDefinitions>
@@ -30,6 +30,23 @@
                    FontSize="26"  
                    FontWeight="Bold"  
                    Margin="0,0,0,20"/>
+
+        <!-- Open Last Report button -->
+        <Button x:Name="OpenLastReportButton"
+            Grid.Column="1"
+            Content="📑"
+            ToolTip="Open Last Report"
+            Style="{StaticResource GrayButton}"
+            Cursor="Hand"
+            FontSize="16"
+            Width="32" Height="32"
+            Margin="-520,0,0,15"
+            VerticalAlignment="Center"
+            Click="OpenLastReport_Click"
+            ToolTipService.InitialShowDelay="0"
+            ToolTipService.ShowDuration="5000"
+            ToolTipService.BetweenShowDelay="0"
+            ToolTipService.Placement="Mouse"/>
 
         <!-- Main Content -->
         <Border Grid.Row="1" Background="#2D2D30" CornerRadius="12" Padding="20" Margin="0,0,0,59" Grid.RowSpan="2">
@@ -228,6 +245,9 @@
                             </Ellipse>
                         </Grid>
                     </Button>
+
+
+
                 </Grid>
 
 

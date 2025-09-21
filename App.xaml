@@ -44,6 +44,33 @@
                 <Setter Property="BorderBrush" Value="#0D47A1" />
             </Style>
 
+            <!-- Gray Button Style -->
+            <Style x:Key="GrayButton" TargetType="Button" BasedOn="{StaticResource CustomMaterialButton}">
+                <Setter Property="Background" Value="{DynamicResource SecondaryHueMidBrush}" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Background" Value="#616161" />
+                <Setter Property="BorderBrush" Value="#616161" />
+                <Setter Property="MinWidth" Value="5" />
+                <!-- Material Design Green 500 -->
+            </Style>
+
+            <Style TargetType="ToolTip" BasedOn="{StaticResource MaterialDesignToolTip}">
+                <Setter Property="Background" Value="#333333"/>
+                <!-- dark gray -->
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="#555555"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="6,4"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="HasDropShadow" Value="True"/>
+                <Setter Property="Placement" Value="Mouse"/>
+
+                <!-- Timing -->
+                <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+                <Setter Property="ToolTipService.BetweenShowDelay" Value="100"/>
+            </Style>
+
+
 
         </ResourceDictionary>
     </Application.Resources>
