@@ -246,7 +246,8 @@ namespace AT_baseline_verifier
                 // Set STD Name input if empty, focus it, and select all text
                 if (string.IsNullOrWhiteSpace(STDNameInput.Text))
                 {
-                    STDNameInput.Text = fileNameWithoutExt;
+                    STDNameInput.Text = fileNameWithoutExt.Contains("Book") ?
+                        "Enter STD name" : fileNameWithoutExt;
                 }
                 STDNameInput.Focus();
                 Dispatcher.BeginInvoke(new Action(() => STDNameInput.SelectAll()));

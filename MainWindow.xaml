@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="AT Baseline Verifier"
-        Height="500" Width="600"
+        Height="580" Width="690"
         Background="#1E1E1E"
         WindowStartupLocation="CenterScreen"
         Style="{StaticResource MaterialDesignWindow}"
@@ -12,8 +12,10 @@
         DragOver="Window_DragOver">
 
 
-    <Grid Margin="20, 20, 20, 5">
-
+    <Grid Margin="20,20,20,5">
+        <Grid.LayoutTransform>
+            <ScaleTransform ScaleX="1.15" ScaleY="1.2"/>
+        </Grid.LayoutTransform>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
