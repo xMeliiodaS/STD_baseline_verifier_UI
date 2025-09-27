@@ -399,14 +399,34 @@ namespace AT_baseline_verifier
             File.AppendAllText(logFilePath, $"\n[ERROR {DateTime.Now}] {error}\n");
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void OpenLastReport_Click(object sender, RoutedEventArgs e)
         {
+            string appDataFolder = IOPath.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "AT_baseline_verifier"
+            );
 
+            string reportPath = IOPath.Combine(appDataFolder, "automation_results.html");
+
+            try
+            {
+                if (!File.Exists(reportPath))
+                {
+                    MessageBox.Show("No report file found.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = reportPath,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open report: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
     }
 }
