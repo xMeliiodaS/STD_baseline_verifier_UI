@@ -147,6 +147,7 @@ namespace AT_baseline_verifier
 
                             const string totalMarker = "PROGRESS_TOTAL:";
                             const string progressMarker = "PROGRESS:";
+                            const string finishedMarker = "PROCESS_FINISHED";
 
                             if (ea.Data.StartsWith(totalMarker))
                             {
@@ -170,6 +171,15 @@ namespace AT_baseline_verifier
                                         StatusText.Text = $"Processing {current}/{total} bugs...";
                                     });
                                 }
+                            }
+                            else if (ea.Data.Trim() == finishedMarker)
+                            {
+                                // Python iteration finished
+                                Dispatcher.Invoke(() =>
+                                {
+                                    StatusText.Text = "All bugs processed! ✅";
+                                    StatusText.Foreground = new SolidColorBrush(Colors.LimeGreen);
+                                });
                             }
                             else
                             {
