@@ -140,9 +140,47 @@ namespace AT_baseline_verifier
 
                         process.OutputDataReceived += (s, ea) =>
                         {
-                            if (!string.IsNullOrEmpty(ea.Data))
-                                outputBuilder.AppendLine(ea.Data);
+                            if (string.IsNullOrEmpty(ea.Data)) return;
+
+                            // Append all output to log if needed
+                            outputBuilder.AppendLine(ea.Data);
+
+                            const string totalMarker = "PROGRESS_TOTAL:";
+                            const string progressMarker = "PROGRESS:";
+
+                            if (ea.Data.StartsWith(totalMarker))
+                            {
+                                if (int.TryParse(ea.Data.Substring(totalMarker.Length).Trim(), out int total))
+                                {
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        StatusText.Text = $"Processing 0/{total} bugs...";
+                                    });
+                                }
+                            }
+                            else if (ea.Data.StartsWith(progressMarker))
+                            {
+                                var parts = ea.Data.Substring(progressMarker.Length).Trim().Split('/');
+                                if (parts.Length == 2
+                                    && int.TryParse(parts[0], out int current)
+                                    && int.TryParse(parts[1], out int total))
+                                {
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        StatusText.Text = $"Processing {current}/{total} bugs...";
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                // Optional: show other messages from Python script
+                                Dispatcher.Invoke(() =>
+                                {
+                                    StatusText.Text = ea.Data;
+                                });
+                            }
                         };
+
 
                         process.ErrorDataReceived += (s, ea) =>
                         {
