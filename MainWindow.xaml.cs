@@ -204,16 +204,6 @@ namespace AT_baseline_verifier
                         process.WaitForExit();
                     }
                 });
-
-                if (errorBuilder.Length > 0)
-                {
-                    LogError(errorBuilder.ToString());
-                    SetResultStatus("Execution failed. See log for details.", true);
-                }
-                else
-                {
-                    SetResultStatus(successMessage, false);
-                }
             }
             catch (Exception ex)
             {
