@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AT_baseline_verifier")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9ec4c32f9c9c79fd3b1a5086f2ef14b9462902c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd6bcf86ae587d6a395108611953c61aa34cd8b9")]
 [assembly: System.Reflection.AssemblyProductAttribute("AT_baseline_verifier")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AT_baseline_verifier")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
