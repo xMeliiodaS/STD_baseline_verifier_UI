@@ -1,242 +1,78 @@
-﻿using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
+﻿using STD_baseline_verifier.Constants;
+using STD_baseline_verifier.Services;
+using STD_baseline_verifier.ViewModels;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using IOPath = System.IO.Path;
 
 namespace AT_baseline_verifier
 {
+    /// <summary>
+    /// Main window with minimal code-behind, using MVVM pattern
+    /// </summary>
     public partial class MainWindow : Window
     {
-        private string selectedFilePath;
-        private Storyboard automationSpinnerStoryboard;
-        private Storyboard violationSpinnerStoryboard;
-        private readonly string logFilePath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.log");
-
-        private readonly string configJsonFileName = "config.json";
-        private readonly string configSTDNameKey = "std_name";
-        private readonly string configIterationPathKey = "iteration_path";
-        private readonly string configCurrentVVKey = "current_version";
-
+        private readonly MainViewModel _viewModel;
+        private Storyboard _automationSpinnerStoryboard;
+        private Storyboard _violationSpinnerStoryboard;
 
         public MainWindow()
         {
             InitializeComponent();
+            _viewModel = ServiceFactory.CreateMainViewModel();
+            DataContext = _viewModel;
+
+            // Subscribe to ViewModel property changes for UI updates
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-
-        // Ensures the user-specific configuration file exists by copying from the default if missing.
-        private string EnsureUserConfigExists()
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            string appDataFolder = IOPath.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "AT_baseline_verifier"
-            );
-
-            Directory.CreateDirectory(appDataFolder);
-
-            string userConfigPath = IOPath.Combine(appDataFolder, configJsonFileName);
-            string defaultConfigPath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, configJsonFileName);
-
-            try
+            // Handle UI-specific updates based on ViewModel property changes
+            switch (e.PropertyName)
             {
-                if (!File.Exists(userConfigPath))
-                {
-                    if (File.Exists(defaultConfigPath))
-                    {
-                        File.Copy(defaultConfigPath, userConfigPath);
-                    }
+                case nameof(MainViewModel.IsAutomationRunning):
+                    if (_viewModel.IsAutomationRunning)
+                        StartButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ButtonSpinnerRotate, ref _automationSpinnerStoryboard);
                     else
-                    {
-                        throw new FileNotFoundException($"Default {configJsonFileName} not found at {defaultConfigPath}");
-                    }
-                }
+                        StopButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ref _automationSpinnerStoryboard);
+                    break;
 
-                return userConfigPath;
-            }
-            catch (Exception ex)
-            {
-                throw new IOException($"Failed to ensure user config exists: {ex.Message}", ex);
+                case nameof(MainViewModel.IsViolationRunning):
+                    if (_viewModel.IsViolationRunning)
+                        StartButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ViolationButtonSpinnerRotate, ref _violationSpinnerStoryboard);
+                    else
+                        StopButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ref _violationSpinnerStoryboard);
+                    break;
+
+                case nameof(MainViewModel.IsRunning):
+                    SetActionButtonsEnabled(!_viewModel.IsRunning);
+                    break;
+
+                case nameof(MainViewModel.StatusMessage):
+                case nameof(MainViewModel.IsError):
+                    UpdateStatusDisplay();
+                    break;
             }
         }
 
-
-        // Executes an external process with the given executable and arguments, handling logging, validation, and UI state.
-        private async Task RunExternalProcess(string exeName, string successMessage, bool useConfig = true)
+        private void UpdateStatusDisplay()
         {
-            File.AppendAllText(logFilePath, "======================================================");
-
-            if (string.IsNullOrWhiteSpace(selectedFilePath))
-            {
-                SetResultStatus("Please Select an Excel File.", true);
-                return;
-            }
-
-            if (useConfig)
-            {
-                if (string.IsNullOrWhiteSpace(STDNameInput.Text) ||
-                    string.IsNullOrWhiteSpace(IterationPathInput.Text) ||
-                    string.IsNullOrWhiteSpace(VVVersionInput.Text))
-                {
-                    SetResultStatus("Please Fill all fields.", true);
-                    return;
-                }
-            }
-
-            try
-            {
-                if (useConfig)
-                {
-                    TrimInputs();
-                    ReplaceCommasWithDots();
-
-                    string userConfigPath = EnsureUserConfigExists();
-                    var json = JObject.Parse(File.ReadAllText(userConfigPath));
-                    json[configSTDNameKey] = STDNameInput.Text;
-                    json[configIterationPathKey] = IterationPathInput.Text;
-                    json[configCurrentVVKey] = VVVersionInput.Text;
-                    File.WriteAllText(userConfigPath, json.ToString());
-                }
-
-                string exePath = IOPath.Combine(AppDomain.CurrentDomain.BaseDirectory, exeName);
-                if (!File.Exists(exePath))
-                {
-                    SetResultStatus($"Error: {exeName} not found.", true);
-                    LogError($"{exeName} not found at {exePath}");
-                    return;
-                }
-
-                SetActionButtonsEnabled(false);
-
-                SetResultStatus("Running...", false);
-
-                var psi = new ProcessStartInfo
-                {
-                    FileName = exePath,
-                    Arguments = $"\"{selectedFilePath}\" \"{STDNameInput.Text}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                var outputBuilder = new StringBuilder();
-                var errorBuilder = new StringBuilder();
-
-                await Task.Run(() =>
-                {
-                    using (var process = new Process())
-                    {
-                        process.StartInfo = psi;
-
-                        process.OutputDataReceived += (s, ea) =>
-                        {
-                            if (string.IsNullOrEmpty(ea.Data)) return;
-
-                            // Append all output to log if needed
-                            outputBuilder.AppendLine(ea.Data);
-
-                            const string totalMarker = "PROGRESS_TOTAL:";
-                            const string progressMarker = "PROGRESS:";
-                            const string finishedMarker = "PROCESS_FINISHED";
-
-                            if (ea.Data.StartsWith(totalMarker))
-                            {
-                                if (int.TryParse(ea.Data.Substring(totalMarker.Length).Trim(), out int total))
-                                {
-                                    Dispatcher.Invoke(() =>
-                                    {
-                                        StatusText.Text = $"Processing 0/{total} bugs...";
-                                    });
-                                }
-                            }
-                            else if (ea.Data.StartsWith(progressMarker))
-                            {
-                                var parts = ea.Data.Substring(progressMarker.Length).Trim().Split('/');
-                                if (parts.Length == 2
-                                    && int.TryParse(parts[0], out int current)
-                                    && int.TryParse(parts[1], out int total))
-                                {
-                                    Dispatcher.Invoke(() =>
-                                    {
-                                        StatusText.Text = $"Processing {current}/{total} bugs...";
-                                    });
-                                }
-                            }
-                            else if (ea.Data.Trim() == finishedMarker)
-                            {
-                                // Python iteration finished
-                                Dispatcher.Invoke(() =>
-                                {
-                                    StatusText.Text = "All bugs processed! ✅";
-                                    StatusText.Foreground = new SolidColorBrush(Colors.LimeGreen);
-                                });
-                            }
-                            else
-                            {
-                                // Optional: show other messages from Python script
-                                Dispatcher.Invoke(() =>
-                                {
-                                    StatusText.Text = ea.Data;
-                                });
-                            }
-                        };
-
-
-                        process.ErrorDataReceived += (s, ea) =>
-                        {
-                            if (!string.IsNullOrEmpty(ea.Data))
-                                errorBuilder.AppendLine(ea.Data);
-                        };
-
-                        process.Start();
-                        process.BeginOutputReadLine();
-                        process.BeginErrorReadLine();
-                        process.WaitForExit();
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                LogError(ex.ToString());
-                SetResultStatus("Execution failed. See log for details.", true);
-            }
-            finally
-            {
-                SetActionButtonsEnabled(true);
-                File.AppendAllText(logFilePath, "======================================================");
-            }
+            StatusText.Text = _viewModel.StatusMessage;
+            StatusText.FontWeight = FontWeights.Bold;
+            StatusText.Foreground = new SolidColorBrush(
+                _viewModel.IsError
+                    ? Color.FromRgb(255, 102, 102)
+                    : Color.FromRgb(255, 255, 255));
         }
 
+        // UI Event Handlers - Minimal code-behind for UI-specific behavior
 
-        // Runs the automation validation executable and updates the UI accordingly.
-        private async void RunAutomation_Click(object sender, RoutedEventArgs e)
-        {
-            StartButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ButtonSpinnerRotate, ref automationSpinnerStoryboard);
-            await RunExternalProcess("test_bugs_std_validation.exe", "Automation completed successfully!", true);
-            StopButtonSpinner(RunAutomationButton, RunIcon, RunButtonText, ButtonSpinner, ref automationSpinnerStoryboard);
-        }
-
-
-        // Runs the violation check executable and updates the UI accordingly.
-        private async void RunViolationCheck_Click(object sender, RoutedEventArgs e)
-        {
-            StartButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ViolationButtonSpinnerRotate, ref violationSpinnerStoryboard);
-            await RunExternalProcess("test_excel_violations.exe", "Violation check completed successfully!", false);
-            StopButtonSpinner(RunViolationButton, ViolationIcon, RunViolationButtonText, ViolationButtonSpinner, ref violationSpinnerStoryboard);
-        }
-
-
-        // Toggles placeholder visibility for STD Name input field based on text changes.
         private void STDNameInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             STDPlaceholder.Visibility = string.IsNullOrEmpty(STDNameInput.Text)
@@ -244,8 +80,6 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
-
-        // Toggles placeholder visibility for Iteration Path input field based on text changes.
         private void IterationPathInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             IterationPathPlaceholder.Visibility = string.IsNullOrEmpty(IterationPathInput.Text)
@@ -253,8 +87,6 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
-
-        // Toggles placeholder visibility for Current Version input field based on text changes.
         private void VVVersionInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             VVVersionPlaceholder.Visibility = string.IsNullOrEmpty(VVVersionInput.Text)
@@ -262,95 +94,57 @@ namespace AT_baseline_verifier
                 : Visibility.Hidden;
         }
 
-        // Sets the selected Excel file path, updates config.json, and refreshes the status label.
-        private void HandleExcelFileSelection(string filePath)
-        {
-            selectedFilePath = filePath;
-
-            // Get the base file name without extension for the input
-            string fileNameWithoutExt = IOPath.GetFileNameWithoutExtension(selectedFilePath);
-
-            // Update label with actual file name (including correct extension)
-            SelectedFileLabel.Text = IOPath.GetFileName(selectedFilePath);
-
-            try
-            {
-                // Ensure user config exists and update Excel path
-                string userConfigPath = EnsureUserConfigExists();
-                var json = JObject.Parse(File.ReadAllText(userConfigPath));
-                json["excel_path"] = selectedFilePath;
-                File.WriteAllText(userConfigPath, json.ToString());
-
-                // Set STD Name input if empty, focus it, and select all text
-                if (string.IsNullOrWhiteSpace(STDNameInput.Text))
-                {
-                    STDNameInput.Text = fileNameWithoutExt.Contains("Book") ?
-                        "Enter STD name" : fileNameWithoutExt;
-                }
-                STDNameInput.Focus();
-                Dispatcher.BeginInvoke(new Action(() => STDNameInput.SelectAll()));
-
-                // Update status
-                SetResultStatus($"Excel path updated to: {json["excel_path"]}", false);
-            }
-            catch (Exception ex)
-            {
-                SetResultStatus($"Error updating config: {ex.Message}", true);
-            }
-        }
-
-
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Filter = "Excel Files|*.xls;*.xlsx",
-                Title = "Select an Excel File"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                HandleExcelFileSelection(openFileDialog.FileName);
-            }
+            _viewModel.SelectFileCommand.Execute(null);
         }
 
-
-        // Handles drag-over events to validate whether the dragged file is an Excel file.
         private void Window_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 0 && (files[0].EndsWith(".xls") || files[0].EndsWith(".xlsx")))
+                if (files.Length > 0 && IsValidExcelFile(files[0]))
                 {
                     e.Effects = DragDropEffects.Copy;
                 }
-                else e.Effects = DragDropEffects.None;
+                else
+                {
+                    e.Effects = DragDropEffects.None;
+                }
             }
-            else e.Effects = DragDropEffects.None;
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
 
             e.Handled = true;
         }
-
 
         private void Window_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 0 && (files[0].EndsWith(".xls") || files[0].EndsWith(".xlsx")))
+                if (files.Length > 0 && IsValidExcelFile(files[0]))
                 {
-                    HandleExcelFileSelection(files[0]);
+                    _viewModel.HandleFileSelection(files[0]);
                 }
                 else
                 {
-                    SetResultStatus("Invalid file format. Please drop an Excel file.", false);
+                    _viewModel.SetStatus(AppConstants.ErrorInvalidFileFormat, true);
                 }
             }
         }
 
+        private bool IsValidExcelFile(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath)) return false;
+            string extension = System.IO.Path.GetExtension(filePath).ToLowerInvariant();
+            return extension == ".xls" || extension == ".xlsx";
+        }
 
-        // Starts a spinner animation for the specified button and updates UI state to "running".
+        // Spinner animation helpers
         private void StartButtonSpinner(Button targetButton, TextBlock icon, TextBlock buttonText, Ellipse spinner, RotateTransform spinnerRotate, ref Storyboard storyboard)
         {
             spinner.Visibility = Visibility.Visible;
@@ -370,12 +164,10 @@ namespace AT_baseline_verifier
             storyboard.Begin();
 
             targetButton.IsEnabled = false;
-            buttonText.Text = "Running…";
+            buttonText.Text = AppConstants.ButtonTextRunning;
             StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         }
 
-
-        // Stops the spinner animation for the specified button and restores default button/UI state.
         private void StopButtonSpinner(Button targetButton, TextBlock icon, TextBlock buttonText, Ellipse spinner, ref Storyboard storyboard)
         {
             storyboard?.Stop();
@@ -383,15 +175,13 @@ namespace AT_baseline_verifier
             icon.Visibility = Visibility.Visible;
 
             if (targetButton == RunAutomationButton)
-                buttonText.Text = "Check STD Bugs in VSTS";
+                buttonText.Text = AppConstants.ButtonTextCheckStdBugs;
             else if (targetButton == RunViolationButton)
-                buttonText.Text = "Validate STD Rules";
+                buttonText.Text = AppConstants.ButtonTextValidateStdRules;
 
             targetButton.IsEnabled = true;
         }
 
-
-        // Enables or disables the main action buttons.
         private void SetActionButtonsEnabled(bool isEnabled)
         {
             RunAutomationButton.IsEnabled = isEnabled;
@@ -403,93 +193,25 @@ namespace AT_baseline_verifier
             VVVersionInput.IsEnabled = isEnabled;
         }
 
-
-        // Updates the status text message with error or success formatting.
-        private void SetResultStatus(string message, bool isError = false)
+        // Button click handlers - delegate to ViewModel commands
+        private void RunAutomation_Click(object sender, RoutedEventArgs e)
         {
-            StatusText.Text = message;
-            StatusText.FontWeight = FontWeights.Bold;
-            StatusText.Foreground = new SolidColorBrush(isError ? Color.FromRgb(255, 102, 102) : Color.FromRgb(255, 255, 255));
+            _viewModel.RunAutomationCommand.Execute(null);
         }
 
-
-        // Trims whitespace.
-        private void TrimInputs()
+        private void RunViolationCheck_Click(object sender, RoutedEventArgs e)
         {
-            // Trim spaces
-            STDNameInput.Text = STDNameInput.Text.Trim();
-            IterationPathInput.Text = IterationPathInput.Text.Trim();
-            VVVersionInput.Text = VVVersionInput.Text.Trim();
+            _viewModel.RunViolationCheckCommand.Execute(null);
         }
-
-
-        // Replaces commas with dots
-        private void ReplaceCommasWithDots()
-        {
-            // Replace commas with dots only for Current Version field
-            VVVersionInput.Text = VVVersionInput.Text.Replace(',', '.');
-        }
-
-
-        // Logs error messages with timestamps to the application log file.
-        private void LogError(string error)
-        {
-            File.AppendAllText(logFilePath, $"\n[ERROR {DateTime.Now}] {error}\n");
-        }
-
 
         private void OpenLastBugsReport_Click(object sender, RoutedEventArgs e)
         {
-            string appDataFolder = IOPath.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AT_baseline_verifier");
-
-            string reportPath = IOPath.Combine(appDataFolder, "automation_results.html");
-
-            try
-            {
-                if (!File.Exists(reportPath))
-                {
-                    MessageBox.Show("No report file found.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
-                }
-
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = reportPath,
-                    UseShellExecute = true
-                });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Failed to open report: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            _viewModel.OpenLastBugsReportCommand.Execute(null);
         }
 
         private void OpenLastRulesReport_Click(object sender, RoutedEventArgs e)
         {
-            string appDataFolder = IOPath.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AT_baseline_verifier");
-
-            string reportPath = IOPath.Combine(appDataFolder, "rules_violations_report.html");
-
-            try
-            {
-                if (!File.Exists(reportPath))
-                {
-                    MessageBox.Show("No report file found.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
-                }
-
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = reportPath,
-                    UseShellExecute = true
-                });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Failed to open report: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            _viewModel.OpenLastRulesReportCommand.Execute(null);
         }
     }
 }
