@@ -1,4 +1,4 @@
-﻿using STD_baseline_verifier.Constants;
+using STD_baseline_verifier.Constants;
 using STD_baseline_verifier.Services;
 using STD_baseline_verifier.ViewModels;
 using System;

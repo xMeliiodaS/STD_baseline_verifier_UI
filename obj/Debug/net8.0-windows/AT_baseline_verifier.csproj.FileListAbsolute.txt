@@ -3,10 +3,8 @@ C:\Users\סלימאן\source\repos\AT_baseline_verifier\bin\Debug\net8.0-windows
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\bin\Debug\net8.0-windows\AT_baseline_verifier.runtimeconfig.json
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\bin\Debug\net8.0-windows\AT_baseline_verifier.dll
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\bin\Debug\net8.0-windows\AT_baseline_verifier.pdb
-C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\MainWindow.g.cs
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\App.g.cs
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\AT_baseline_verifier_MarkupCompile.cache
-C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\MainWindow.baml
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\AT_baseline_verifier.g.resources
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\AT_baseline_verifier.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\AT_baseline_verifier.AssemblyInfoInputs.cache
@@ -32,3 +30,5 @@ C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\MainMenuWindow.baml
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\BaselineVerifierWindow.g.cs
 C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\MainMenuWindow.g.cs
+C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\MainWindow.baml
+C:\Users\סלימאן\source\repos\AT_baseline_verifier\obj\Debug\net8.0-windows\MainWindow.g.cs

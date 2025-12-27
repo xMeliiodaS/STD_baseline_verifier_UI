@@ -29,6 +29,9 @@ namespace AT_baseline_verifier
 
             // Subscribe to ViewModel property changes for UI updates
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            
+            // Subscribe to focus request event
+            _viewModel.RequestStdNameFocus += ViewModel_RequestStdNameFocus;
         }
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -223,6 +226,14 @@ namespace AT_baseline_verifier
             
             // Close this window
             this.Close();
+        }
+
+        // Handle focus request for STD Name input
+        private void ViewModel_RequestStdNameFocus()
+        {
+            // Focus and select all text in the STD Name input
+            STDNameInput.Focus();
+            STDNameInput.SelectAll();
         }
     }
 }
